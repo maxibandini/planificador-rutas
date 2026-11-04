@@ -10,6 +10,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # radon 6.0.1 exige mando<0.8. Dependabot propuso mando 0.8.2 y el CI
+      # lo rechazo (no se puede instalar). Se quita cuando radon lo soporte.
+      - dependency-name: mando
+        versions: [">=0.8"]
     groups:
       opentelemetry:
         patterns: ["opentelemetry-*"]

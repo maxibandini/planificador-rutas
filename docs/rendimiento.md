@@ -28,6 +28,24 @@ Medido en AMD Ryzen 7 7800X3D, Windows 11, Python 3.14.6.
 mismas consultas (explora menos nodos), y un acierto de caché cuesta 0,2 µs
 contra 0,6 ms de calcular la ruta: unas 3.000 veces menos.
 
+### En el runner de GitHub (Linux)
+
+La línea base se midió en Windows. En la primera corrida aprobada del CI:
+
+| Operación | Tiempo absoluto, PC → runner | Tiempo relativo contra la línea base |
+|---|---:|---:|
+| `test_referencia` | 9,92 → 12,54 ms (+26 %) | — |
+| `test_a_estrella` | 12,70 → 18,29 ms (+44 %) | **+9 %** |
+| `test_dijkstra_heap` | 32,74 → 48,44 ms (+48 %) | **+12 %** |
+| `test_procesar_archivo_por_lotes` | 1.048,8 → 1.494,9 ms (+43 %) | **+10 %** |
+
+Con un umbral en milisegundos, el CI hubiera marcado una regresión que no
+existe (el runner es más lento, nada más). En tiempo relativo la diferencia
+queda en +9 a +12 %, dentro de la tolerancia del 30 %. Los controles que no
+dependen de la máquina dieron lo mismo: exponentes 1,96 y 1,15 (en Windows,
+2,00 y 1,14) y picos de memoria de 1.119,7 y 10.976,0 KiB (en Windows,
+1.121,7 y 10.976,3).
+
 ### Línea base y criterio de regresión
 
 El problema de comparar tiempos en un CI es que el runner de GitHub, la

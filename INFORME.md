@@ -8,7 +8,8 @@ lo que dice la cátedra sobre el tema (con el número de diapositiva) y cómo lo
 aplicamos. El detalle técnico está en la documentación (`docs/`, se ve con
 `mkdocs serve`). Todo se reproduce con `python controles.py`.
 
-**Equipo de medición:** AMD Ryzen 7 7800X3D, Windows 11, Python 3.14.6.
+**Equipo de medición:** AMD Ryzen 7 7800X3D, Windows 11, Python 3.14.6, y el
+runner `ubuntu-latest` de GitHub Actions con Python 3.14.
 
 ## Resumen
 
@@ -22,6 +23,7 @@ aplicamos. El detalle técnico está en la documentación (`docs/`, se ve con
 | 3. Diseño por etapas | Lo rápido primero, lo independiente en paralelo | Calidad → pruebas / seguridad / documentación → rendimiento |
 | 3.1. Si un control falla | Un defecto plantado por control | 13 de 13 rechazados |
 | Evolución | El pipeline nuevo corrido sobre el código del parcial 2 | Parcial 2: RECHAZADO; parcial 3: APROBADO, mismo rendimiento |
+| En GitHub | Primeras corridas reales | La primera falló por una diferencia Windows/Linux; corregida, todo en verde |
 
 ---
 
@@ -288,15 +290,28 @@ detectaba (por ejemplo, `a_estrella` podía recibir `None` en los procesos
 hijos) y dependencias que podían cambiar solas. Corregirlo no costó
 rendimiento.
 
-## 8. Limitaciones
+## 8. El pipeline en GitHub
 
-1. **El pipeline todavía no corrió en una plataforma de CI.** Lo verificamos
-   localmente con los mismos comandos que usa cada job, pero falta subir el
-   repositorio y adjuntar una corrida en verde.
-2. **La línea base del benchmark se midió en Windows.** El tiempo relativo
-   compensa la velocidad de la máquina, pero si la primera corrida en Linux
-   marca regresión, se regenera en el runner (*Run workflow* → *linea_base*).
-   El control de complejidad no tiene este problema.
+Repositorio: <https://github.com/maxibandini/planificador-rutas> ·
+documentación publicada: <https://maxibandini.github.io/planificador-rutas/>.
+`main` está protegida: exige pull request y el check `resultado` en verde.
+
+| Corrida | Resultado |
+|---|---|
+| Primera | **Rechazada.** mypy en Linux marcó un `type: ignore` sin usar en `telemetria.py`: esa línea solo corre en Windows, y en Linux mypy la ve inalcanzable. En nuestras máquinas (Windows) pasaba. Lo reprodujimos con `mypy --platform linux` y lo corregimos |
+| Segunda | **Aprobada**: las 7 etapas en 2 min 54 s, y la documentación publicada |
+| Pull request de Dependabot | Propuso `mando` 0.8.2, incompatible con `radon` 6.0.1: **la instalación falla y el CI la rechaza**. Lo cerramos y le indicamos a Dependabot que no vuelva a proponerla |
+
+**La línea base medida en Windows funcionó en Linux.** El runner es más
+lento: A* tarda 18,3 ms contra 12,7 ms en nuestra PC (+44 %). Con un umbral
+en milisegundos el CI hubiera marcado una regresión falsa. En tiempo
+relativo la diferencia quedó en +9 a +12 %, dentro de la tolerancia. Los
+controles que no dependen de la máquina dieron lo mismo que en Windows:
+exponentes 1,96 y 1,15 (contra 2,00 y 1,14) y memoria 1.119,7 KiB (contra
+1.121,7).
+
+Los dos rechazos son justamente para lo que sirve un CI: ninguno se veía en
+la máquina donde escribimos el código.
 
 ## 9. Conclusiones
 
@@ -310,6 +325,8 @@ rendimiento.
   `debug=True` y mypy encontró 6 errores que ninguna prueba detectaba.
 - **Los controles también se prueban.** Sin los defectos plantados no
   sabríamos si el CI controla algo.
+- **Probar en otra máquina encuentra lo que la propia no ve.** La primera
+  corrida en Linux falló por algo que en Windows no existía.
 
 ## Cómo reproducir
 
