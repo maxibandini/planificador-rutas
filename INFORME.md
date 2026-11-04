@@ -55,7 +55,7 @@ integrante). El CI publica el sitio en GitHub Pages cuando un cambio llega a
 | Instalación y ejecución | `instalacion.md` |
 | Diseño técnico | `diseno.md`: estructuras de datos, complejidades y decisiones con su medición |
 | API y contratos | `api.md` (salidas reales de la API) y `referencia.md` (desde los docstrings) |
-| Pruebas | `pruebas.md`: estrategia, 121 casos por tipo, cobertura por módulo |
+| Pruebas | `pruebas.md`: estrategia, 122 casos por tipo, cobertura por módulo |
 | Rendimiento | `rendimiento.md`: benchmark, profiling, complejidad teórica y medida, memoria |
 | Seguridad | `seguridad.md`: riesgos, política de bloqueo, falsos positivos |
 | Mantenimiento | `mantenimiento.md`: cómo contribuir y una tabla *fallo → cómo reproducirlo → cómo se resuelve* |
@@ -130,10 +130,12 @@ Por eso **no todos los controles usan el mismo criterio**:
   toma el mínimo de varias rondas (el ruido solo suma tiempo) y ese cociente
   se compara con la línea base. En la misma máquina la variación entre
   corridas fue de ±4 %, pero los runners de GitHub son máquinas
-  compartidas: en 7 corridas sin cambios en el código varió de −5 % a
-  +31 % (ver sección 8). La tolerancia es 50 %: deja pasar ese ruido y
-  rechaza el defecto plantado (+107 %). Los cambios de algoritmo más sutiles
-  los detecta la complejidad medida, que no depende de la máquina.
+  compartidas y varían mucho más (ver sección 8). Por eso la línea base es
+  la **mediana de 7 corridas en el runner** y la tolerancia es 50 %: las 11
+  corridas sin cambios en el código quedaron entre −23 % y +19 %, y el
+  defecto plantado se rechaza igual (al menos +60 %). Los cambios de
+  algoritmo más sutiles los detecta la complejidad medida, que no depende
+  de la máquina.
 - **Memoria:** tracemalloc cuenta objetos Python, no memoria del sistema
   operativo, y da casi el mismo número en Windows y en Linux. Tolerancia 20 %.
 
@@ -275,7 +277,7 @@ coincide con la teoría también en el error.
 | Rendimiento | `banco.py`, a mano | Informe con mediciones | Benchmark contra línea base en cada cambio |
 | Documentación | Docstrings y la presentación | Sphinx, generado a mano | MkDocs, publicado por el CI; ejemplos ejecutables |
 | Dependencias | — | 21 con `>=` | 97 con versión exacta |
-| Pruebas | — | 116 | 121 |
+| Pruebas | — | 116 | 122 |
 
 **El pipeline del parcial 3 corrido sobre el código del parcial 2** (mismas
 pruebas, misma configuración, misma línea base):
@@ -308,27 +310,30 @@ documentación publicada: <https://maxibandini.github.io/planificador-rutas/>.
 | Pull request de Dependabot | Propuso `mando` 0.8.2, incompatible con `radon` 6.0.1: **la instalación falla y el CI la rechaza**. Lo cerramos y le indicamos a Dependabot que no vuelva a proponerla |
 | Pull request #2 | **Aprobada**, en un runner con procesador AMD en lugar de Intel: el benchmark dio de +16 a +27 %, dentro de la tolerancia pero más cerca del límite |
 | Pull request #3 | **Rechazada por una regresión falsa**: el acierto de caché dio +40 % sin que cambiara su código. pytest-benchmark repitió la operación 2 veces por ronda (en las corridas anteriores, 40), y con 0,3 µs el reloj pesa más que la operación. En local se reproduce: +33 % con 1 repetición por ronda. Lo corregimos haciendo que cada ronda dure al menos 0,1 ms (unas 1.000 repeticiones) |
-| Pull request #3, tres corridas más | Para ver el ruido de los runners repetimos la corrida tres veces sin cambiar el código. Dos aprobaron (−5 a +28 %) y **una se rechazó**: todas las operaciones de +22 a +31 %, en el mismo modelo de procesador que una de las aprobadas. Ampliamos la tolerancia del tiempo a 50 % |
+| Pull request #3, siete corridas más | Para ver el ruido de los runners repetimos la corrida sin cambiar el código. Contra la línea base de Windows dio de −5 a +44 %, y **una se rechazó** (todas las operaciones de +22 a +31 %, en el mismo modelo de procesador que otra que dio −5 %). Cambiamos la línea base por la mediana de esas 7 corridas en el runner y la tolerancia a 50 % |
 
-**La línea base medida en Windows funcionó en Linux.** El runner es más
-lento: A* tarda 18,3 ms contra 12,7 ms en nuestra PC (+44 %). Con un umbral
-en milisegundos el CI hubiera marcado una regresión falsa. En tiempo
-relativo la diferencia quedó en +9 a +12 % en la primera corrida, pero en
-las 7 corridas que hicimos varió de −5 % a +31 % sin cambios en el código:
-los runners son máquinas compartidas, y en algunas corridas el código del
-proyecto (que recorre estructuras grandes en memoria) se frena más que la
-referencia (cuentas simples). Por eso la tolerancia es 50 %: deja pasar ese
-ruido y sigue rechazando el defecto plantado (+107 %). Los
+**La línea base medida en Windows no alcanzó.** El runner es más lento: A*
+tarda 18,3 ms contra 12,7 ms en nuestra PC (+44 %). Con un umbral en
+milisegundos el CI hubiera marcado una regresión falsa, y el tiempo
+relativo lo resolvió en la primera corrida (+9 a +12 %). Pero en 11
+corridas sin cambios en el código varió de −5 % a +44 %: los runners son
+máquinas compartidas, y en algunas corridas el código del proyecto (que
+recorre estructuras grandes en memoria) se frena más que la referencia
+(cuentas simples). Ahora la línea base es la mediana de 7 corridas en el
+runner (`python controles.py linea-base` con sus `benchmark.json`) y la
+tolerancia es 50 %. Contra esa línea base las 11 corridas quedan entre −23 %
+y +19 %, y el defecto plantado se sigue rechazando aun en el runner más
+rápido (+60 %). Los
 controles que no dependen de la máquina dieron lo mismo que en Windows:
 exponentes 1,96 y 1,15 (contra 2,00 y 1,14) y memoria 1.119,7 KiB (contra
 1.121,7).
 
 Los dos primeros rechazos son justamente para lo que sirve un CI: ninguno se
 veía en la máquina donde escribimos el código. Los del pull request #3
-muestran lo contrario: un control de tiempos mal calibrado, o con una
-tolerancia medida en una sola máquina, rechaza código correcto. Por eso el
-benchmark necesita repetición y una tolerancia medida en el mismo entorno
-donde corre.
+muestran lo contrario: un control de tiempos mal calibrado, o con una línea
+base medida en otra máquina, rechaza código correcto. Por eso el benchmark
+necesita repetición y una línea base medida varias veces en el mismo
+entorno donde corre.
 
 ## 9. Conclusiones
 

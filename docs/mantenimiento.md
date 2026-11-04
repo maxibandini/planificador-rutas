@@ -85,13 +85,30 @@ reproducirlo localmente con la etapa correspondiente.
 
 ### Actualizar la línea base de rendimiento
 
+La línea base es la **mediana de varias corridas en el runner de GitHub**,
+que es donde corre el control:
+
+1. Correr el workflow varias veces (*Actions → CI → Run workflow*) o
+   tomar corridas recientes. Cada una deja su `reportes/benchmark.json` en
+   el artefacto `reportes-rendimiento`.
+2. Descargar esos archivos y calcular la mediana:
+
+    ```bash
+    python controles.py linea-base corrida1.json corrida2.json corrida3.json ...
+    ```
+
+3. Subir `benchmarks/linea_base.json` por pull request, para que se vea y
+   se discuta.
+
+Medirla en una sola máquina y usarla en el CI no funciona bien: la de
+Windows daba de −5 % a +44 % en los runners sin cambios en el código (ver
+[Rendimiento](rendimiento.md#en-el-runner-de-github-linux)), y una sola
+corrida en el runner puede caer en un extremo. Para comparar un cambio en la
+propia máquina, sin subirla, sirve medirla localmente:
+
 ```bash
 python controles.py linea-base      # mide en esta máquina y reescribe benchmarks/linea_base.json
 ```
-
-O desde GitHub: *Actions → CI → Run workflow* con *linea_base* marcado; el
-archivo nuevo queda en el artefacto `reportes-rendimiento`. En los dos casos
-el cambio entra por pull request, para que se vea y se discuta.
 
 ### Actualizar dependencias
 

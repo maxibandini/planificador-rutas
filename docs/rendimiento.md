@@ -30,9 +30,10 @@ contra 0,6 ms de calcular la ruta: unas 3.000 veces menos.
 
 ### En el runner de GitHub (Linux)
 
-La línea base se midió en Windows. En la primera corrida aprobada del CI:
+La primera línea base se midió en Windows. En la primera corrida aprobada
+del CI:
 
-| Operación | Tiempo absoluto, PC → runner | Tiempo relativo contra la línea base |
+| Operación | Tiempo absoluto, PC → runner | Tiempo relativo contra la línea base de Windows |
 |---|---:|---:|
 | `test_referencia` | 9,92 → 12,54 ms (+26 %) | — |
 | `test_a_estrella` | 12,70 → 18,29 ms (+44 %) | **+9 %** |
@@ -43,25 +44,31 @@ Con un umbral en milisegundos, el CI hubiera marcado una regresión que no
 existe (el runner es más lento, nada más). En tiempo relativo la diferencia
 queda en +9 a +12 %.
 
-Pero esa fue una corrida. En las 7 que hicimos, sin cambios en el código que
-se mide, el tiempo relativo varió bastante más:
+Pero esa fue una corrida. En 11 corridas, sin cambios en el código que se
+mide, el tiempo relativo contra la línea base de Windows varió de −5 % a
++44 %, y con el 30 % de tolerancia original varias corridas se rechazaron
+en falso. Los runners son máquinas compartidas: en algunas corridas el
+código del proyecto (que recorre estructuras grandes en memoria) se frena
+más que la referencia (cuentas simples), y los que GitHub asigna ahora (AMD
+EPYC 9V45 y 9V74) dan casi siempre más que la PC.
+
+Por eso, desde el pull request #3 la línea base es la **mediana de 7
+corridas en el runner** (`python controles.py linea-base` con sus
+`benchmark.json`) y la tolerancia es 50 %. Contra esa línea base, las 11
+corridas quedan así:
 
 | Corrida | Procesador del runner | Tiempo relativo contra la línea base |
 |---|---|---:|
-| Primera aprobada (push a `main`) | Intel Xeon Platinum 8573C | +0 a +12 % |
-| Pull request #2 | AMD EPYC 7763 | +16 a +27 % |
-| Merge del pull request #2 | Intel Xeon Platinum 8573C | +5 a +11 % |
-| Pull request #3, primera | AMD EPYC 7763 | +8 a +10 % (y +40 % falso en el caché, ver abajo) |
-| Pull request #3, con la corrección | AMD EPYC 9V74 | −5 a +0 % |
-| Pull request #3, repetida | AMD EPYC 9V74 | +22 a +31 % |
-| Pull request #3, repetida | AMD EPYC 9V45 | +17 a +28 % |
+| Primera aprobada (push a `main`) | Intel Xeon Platinum 8573C | −15 a −8 % |
+| Pull request #2 | AMD EPYC 7763 | −5 a +8 % |
+| Merge del pull request #2 | Intel Xeon Platinum 8573C | −16 a −5 % |
+| Pull request #3, primera | AMD EPYC 7763 | −13 a −12 % (sin el caché, ver abajo) |
+| Pull request #3, siete más | AMD EPYC 9V45 y 9V74 | −23 a +19 % |
 
-El mismo modelo de procesador dio −5 % en una corrida y +31 % en otra: los
-runners son máquinas compartidas, y en algunas corridas el código del
-proyecto (que recorre estructuras grandes en memoria) se frena más que la
-referencia (cuentas simples). El tiempo relativo compensa la velocidad de la
-máquina, pero no ese ruido. Por eso la tolerancia es 50 % (ver abajo). Los
-controles que no
+El peor caso es +19 %: lejos del 50 %. Y el defecto plantado (A* calcula
+dos veces la ruta) se sigue rechazando aun en el runner más rápido de los
+11 (+60 %). En la PC de desarrollo esta línea base da alrededor de −20 %
+(la PC es más rápida), así que localmente también pasa. Los controles que no
 dependen de la máquina dieron lo mismo: exponentes 1,96 y 1,15 (en Windows,
 2,00 y 1,14) y picos de memoria de 1.119,7 y 10.976,0 KiB (en Windows,
 1.121,7 y 10.976,3).
@@ -86,25 +93,27 @@ compara ese **tiempo relativo** con `benchmarks/linea_base.json`:
   vez de 40) y el acierto de caché dio +40 %, una regresión falsa. En local
   se reproduce igual: +33 % con 1 repetición por ronda, +8 a +12 % con 32
   o con 1.000.
+- La **línea base** es la mediana de varias corridas en el runner de
+  GitHub, el mismo entorno donde corre el control: la mediana no depende de
+  una corrida extrema. Cómo regenerarla está en
+  [Mantenimiento](mantenimiento.md#actualizar-la-linea-base-de-rendimiento).
 - **Se rechaza** si una operación es más de un **50 %** más lenta que la
-  línea base. Entre corridas repetidas en la misma máquina la variación fue
-  de ±4 %, pero en los runners de GitHub llegó a +31 % sin cambios en el
-  código (con 30 % de tolerancia, una de cada tres corridas fallaba en
-  falso). Un 50 % deja pasar ese ruido y detecta una regresión real (el
-  defecto plantado dio +107 %). Los cambios de algoritmo más sutiles los
-  detecta la complejidad medida, que no depende de la máquina: cambiar el
-  heap por `min()` sube el exponente de 1,14 a 1,51.
-- La línea base se regenera con `python controles.py linea-base` (o desde
-  GitHub, corriendo el workflow a mano con la opción *linea_base*) y entra
-  al repositorio por pull request, como cualquier otro cambio.
+  línea base. En la misma máquina la variación entre corridas fue de ±4 %,
+  pero entre corridas en GitHub fue de −23 % a +19 % alrededor de la
+  mediana. Un 50 % deja pasar ese ruido y detecta una regresión real (el
+  defecto plantado da al menos +60 %). Los cambios de algoritmo más sutiles
+  los detecta la complejidad medida, que no depende de la máquina: cambiar
+  el heap por `min()` sube el exponente de 1,14 a 1,51.
+
+Salida real en una corrida del pull request #3 (AMD EPYC 9V74):
 
 ```text
 === Regresion contra la linea base
 operacion                              base     actual  cambio
-test_a_estrella                       1.336      1.279     -4%
-test_dijkstra_heap                    3.436      3.299     -4%
-test_cache_acierto                2.038e-05  2.116e-05     +4%
-test_procesar_archivo_por_lotes       108.3      105.7     -2%
+test_a_estrella                       1.673      1.602     -4%
+test_dijkstra_heap                    4.191      3.963     -5%
+test_cache_acierto                2.394e-05  2.383e-05     -0%
+test_procesar_archivo_por_lotes       137.8      129.2     -6%
 ```
 
 Para comparar dos versiones en la misma máquina también sirve

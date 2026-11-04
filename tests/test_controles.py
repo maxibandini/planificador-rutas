@@ -1,5 +1,7 @@
 """Pruebas de controles.py: el script que decide si un cambio se integra."""
 
+import json
+
 import pytest
 
 import controles
@@ -32,3 +34,26 @@ def test_programa_externo_ausente_queda_como_omitido(monkeypatch, capsys):
     salida = capsys.readouterr().out
     assert "APROBADO" in salida
     assert "Sin verificar en esta maquina" in salida
+
+
+def test_linea_base_de_varias_corridas_es_la_mediana(monkeypatch, tmp_path):
+    corridas = []
+    for numero, (referencia, operacion) in enumerate([(1, 2), (1, 3), (2, 2)]):
+        archivo = tmp_path / f"benchmark_{numero}.json"
+        benchmarks = [
+            {"name": "test_referencia", "stats": {"min": referencia}},
+            {"name": "test_operacion", "stats": {"min": operacion}},
+        ]
+        archivo.write_text(json.dumps({"benchmarks": benchmarks}))
+        corridas.append(str(archivo))
+    linea_base = tmp_path / "linea_base.json"
+    linea_base.write_text(json.dumps({"memoria_kib": {"pico": 100.0}}))
+    monkeypatch.setattr(controles, "LINEA_BASE", linea_base)
+
+    _correr_main(monkeypatch, {}, ["linea-base", *corridas])
+
+    # tiempos relativos 2, 3 y 1: la mediana es 2; la memoria no cambia
+    assert json.loads(linea_base.read_text()) == {
+        "tiempos": {"test_operacion": 2.0},
+        "memoria_kib": {"pico": 100.0},
+    }

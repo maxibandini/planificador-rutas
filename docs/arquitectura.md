@@ -114,7 +114,7 @@ procesar_en_paralelo():
 
 ```text
 planificador/        paquete principal (ver tabla de módulos)
-tests/               100 pruebas: unitarias, integración, API, rendimiento relativo, controles.py (121 con los doctests)
+tests/               101 pruebas: unitarias, integración, API, rendimiento relativo, controles.py (122 con los doctests)
 benchmarks/          benchmark, memoria, complejidad medida y linea_base.json
 docs/                esta documentación (MkDocs)
 .github/             pipeline de CI (workflows/ci.yml) y Dependabot
