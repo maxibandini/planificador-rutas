@@ -83,10 +83,14 @@ ETAPAS = {
         ("MkDocs: sitio y enlaces internos", "mkdocs build --strict"),
     ],
     "rendimiento": [
+        # min-time: cada ronda dura al menos 0,1 ms. Asi el acierto de cache
+        # (0,3 us) se repite ~1.000 veces por ronda; con 1 o 2 repeticiones
+        # el reloj pesa mas que la operacion y da una regresion falsa.
         (
             "Benchmarks (pytest-benchmark)",
             "pytest benchmarks/test_benchmark.py --benchmark-only"
-            " --benchmark-min-rounds=5 --benchmark-time-unit=ms"
+            " --benchmark-min-rounds=5 --benchmark-min-time=0.0001"
+            " --benchmark-time-unit=ms"
             " --benchmark-columns=min,mean,stddev,rounds"
             " --benchmark-json=reportes/benchmark.json",
         ),

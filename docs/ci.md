@@ -58,7 +58,7 @@ reportes como **artefacto** (`reportes-calidad`, `reportes-pruebas`,
 | Secretos | Gitleaks | `gitleaks dir . --redact` | `gitleaks.sarif` | Cualquier secreto |
 | Dependencias | pip-audit + Dependabot | `pip_audit -r requirements.txt -r requirements-dev.txt` | `pip-audit.json` | Cualquier vulnerabilidad conocida sin excepción documentada |
 | Documentación | MkDocs | `mkdocs build --strict` | Sitio en `site/` | El sitio no se construye, un enlace o ancla no existe, o un docstring tiene error |
-| Benchmark | pytest-benchmark | `pytest benchmarks/test_benchmark.py --benchmark-only` + `comparar_benchmark` | `benchmark.json` | Una operación es > 30 % más lenta que la línea base (en tiempo relativo) |
+| Benchmark | pytest-benchmark | `pytest benchmarks/test_benchmark.py --benchmark-only --benchmark-min-time=0.0001` + `comparar_benchmark` | `benchmark.json` | Una operación es > 30 % más lenta que la línea base (en tiempo relativo) |
 | Consumo de memoria | tracemalloc | `pytest benchmarks/test_memoria.py` | `memoria.json` | Pico > 20 % sobre la línea base |
 | Complejidad temporal medida | timeit + regresión log-log (`statistics`) | `pytest benchmarks/test_complejidad.py` | `complejidad.json` | El exponente medido no coincide con el teórico (ver [Rendimiento](rendimiento.md#complejidad-temporal-medida-control-del-ci)) |
 | Profiling de CPU | cProfile | función `perfilar` | `perfil.prof`, `perfil.txt` | No bloquea: es un reporte para decidir qué optimizar |

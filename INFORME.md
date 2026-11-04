@@ -304,6 +304,7 @@ documentación publicada: <https://maxibandini.github.io/planificador-rutas/>.
 | Segunda | **Aprobada**: las 7 etapas en 2 min 54 s, y la documentación publicada |
 | Pull request de Dependabot | Propuso `mando` 0.8.2, incompatible con `radon` 6.0.1: **la instalación falla y el CI la rechaza**. Lo cerramos y le indicamos a Dependabot que no vuelva a proponerla |
 | Pull request #2 | **Aprobada**, en un runner con procesador AMD en lugar de Intel: el benchmark dio de +16 a +27 %, dentro de la tolerancia pero más cerca del límite |
+| Pull request #3 | **Rechazada por una regresión falsa**: el acierto de caché dio +40 % sin que cambiara su código. pytest-benchmark repitió la operación 2 veces por ronda (en las corridas anteriores, 40), y con 0,3 µs el reloj pesa más que la operación. En local se reproduce: +33 % con 1 repetición por ronda. Lo corregimos haciendo que cada ronda dure al menos 0,1 ms (unas 1.000 repeticiones) |
 
 **La línea base medida en Windows funcionó en Linux.** El runner es más
 lento: A* tarda 18,3 ms contra 12,7 ms en nuestra PC (+44 %). Con un umbral
@@ -318,8 +319,10 @@ controles que no dependen de la máquina dieron lo mismo que en Windows:
 exponentes 1,96 y 1,15 (contra 2,00 y 1,14) y memoria 1.119,7 KiB (contra
 1.121,7).
 
-Los dos rechazos son justamente para lo que sirve un CI: ninguno se veía en
-la máquina donde escribimos el código.
+Los dos primeros rechazos son justamente para lo que sirve un CI: ninguno se
+veía en la máquina donde escribimos el código. El tercero muestra lo
+contrario: un control de tiempos mal calibrado rechaza código correcto. Por
+eso el benchmark necesita repetición, y no solo tolerancia.
 
 ## 9. Conclusiones
 

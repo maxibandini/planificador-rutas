@@ -73,6 +73,13 @@ compara ese **tiempo relativo** con `benchmarks/linea_base.json`:
 
 - Se usa el **mínimo** de las rondas: el ruido (otros procesos, la CPU
   cambiando de frecuencia) solo puede sumar tiempo.
+- Cada ronda dura **al menos 0,1 ms** (`--benchmark-min-time=0.0001`). Un
+  acierto de caché tarda 0,3 µs: si la ronda lo repite una o dos veces, el
+  reloj y el propio bucle de medición pesan más que la operación. Pasó en
+  el pull request #3: pytest-benchmark eligió 2 repeticiones por ronda (en
+  vez de 40) y el acierto de caché dio +40 %, una regresión falsa. En local
+  se reproduce igual: +33 % con 1 repetición por ronda, +8 a +12 % con 32
+  o con 1.000.
 - **Se rechaza** si una operación es más de un **30 %** más lenta que la
   línea base. Entre corridas repetidas en la misma máquina la variación fue
   de ±4 %, y entre runners de GitHub con distinto procesador llegó a +27 %:
