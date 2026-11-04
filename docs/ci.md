@@ -58,7 +58,7 @@ reportes como **artefacto** (`reportes-calidad`, `reportes-pruebas`,
 | Secretos | Gitleaks | `gitleaks dir . --redact` | `gitleaks.sarif` | Cualquier secreto |
 | Dependencias | pip-audit + Dependabot | `pip_audit -r requirements.txt -r requirements-dev.txt` | `pip-audit.json` | Cualquier vulnerabilidad conocida sin excepción documentada |
 | Documentación | MkDocs | `mkdocs build --strict` | Sitio en `site/` | El sitio no se construye, un enlace o ancla no existe, o un docstring tiene error |
-| Benchmark | pytest-benchmark | `pytest benchmarks/test_benchmark.py --benchmark-only --benchmark-min-time=0.0001` + `comparar_benchmark` | `benchmark.json` | Una operación es > 30 % más lenta que la línea base (en tiempo relativo) |
+| Benchmark | pytest-benchmark | `pytest benchmarks/test_benchmark.py --benchmark-only --benchmark-min-time=0.0001` + `comparar_benchmark` | `benchmark.json` | Una operación es > 50 % más lenta que la línea base (en tiempo relativo) |
 | Consumo de memoria | tracemalloc | `pytest benchmarks/test_memoria.py` | `memoria.json` | Pico > 20 % sobre la línea base |
 | Complejidad temporal medida | timeit + regresión log-log (`statistics`) | `pytest benchmarks/test_complejidad.py` | `complejidad.json` | El exponente medido no coincide con el teórico (ver [Rendimiento](rendimiento.md#complejidad-temporal-medida-control-del-ci)) |
 | Profiling de CPU | cProfile | función `perfilar` | `perfil.prof`, `perfil.txt` | No bloquea: es un reporte para decidir qué optimizar |
@@ -69,9 +69,9 @@ reportes como **artefacto** (`reportes-calidad`, `reportes-pruebas`,
   un error, sin tolerancia.
 - El **benchmark** varía con la máquina y la carga. Por eso: muchas rondas,
   el mínimo y no el promedio, tiempo **relativo** a una referencia medida en
-  la misma corrida, y una tolerancia del 30 % (la variación observada fue
-  de ±4 % en la misma máquina y de hasta +27 % entre runners de GitHub con
-  distinto procesador).
+  la misma corrida, al menos 0,1 ms por ronda, y una tolerancia del 50 %
+  (la variación observada fue de ±4 % en la misma máquina y de hasta +31 %
+  entre corridas en runners de GitHub, sin cambios en el código).
 - La **memoria** con tracemalloc casi no varía (cuenta objetos Python, no
   memoria del sistema operativo); igual se da un 20 % de margen para
   cambios menores de versión de Python.
@@ -97,7 +97,7 @@ por vez en una copia del proyecto y corrimos la etapa correspondiente con
 | pip-audit | `requests==2.19.0` en `requirements.txt` | Rechazado: `Found 10 known vulnerabilities in 1 package` (PYSEC-2018-28, PYSEC-2023-74, ...) |
 | MkDocs | Enlace a `no-existe.md` en `index.md` | Rechazado: `Aborted with 1 warnings in strict mode!` |
 | Benchmark | A* calcula dos veces la misma ruta | Rechazado: `test_a_estrella +107 % REGRESION`, `test_procesar_archivo_por_lotes +107 % REGRESION` |
-| Memoria | A* copia la lista de adyacencia antes de buscar | Rechazado: `a_estrella_10k_nodos: 2070.0 KiB supera el limite de 1346 KiB` (y también regresión de tiempo: +40 %) |
+| Memoria | A* copia la lista de adyacencia antes de buscar | Rechazado: `a_estrella_10k_nodos: 2070.0 KiB supera el limite de 1346 KiB` (el tiempo subió +40 %: con la tolerancia de 50 % lo rechaza solo el control de memoria) |
 | Complejidad medida | En `_busqueda_con_heap`, `min()` sobre una lista en lugar de `heapq.heappop` | Rechazado: `se esperaba O(V log V) (k ~ 1,1) y se midio k = 1.51`. Las pruebas funcionales pasaban todas |
 | Documentación viva | En `docs/api.md`, el ejemplo dice 16 nodos explorados en lugar de 17 | Rechazado: `FAILED docs/api.md::api.md`, `Expected: (4818.8, 16)  Got: (4818.8, 17)` |
 | Gitleaks | Un token de GitHub de prueba en `formato.py` | Rechazado: `leaks found: 1`, regla `github-pat` |

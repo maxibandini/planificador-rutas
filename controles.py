@@ -22,7 +22,10 @@ from pathlib import Path
 
 REPORTES = Path("reportes")
 LINEA_BASE = Path("benchmarks/linea_base.json")
-TOLERANCIA_TIEMPO = 0.30  # mas de un 30 % sobre la linea base es regresion
+# Mas de un 50 % sobre la linea base es regresion. En 7 corridas en GitHub
+# sin cambios en el codigo el tiempo relativo vario de -5 % a +31 % (los
+# runners son maquinas compartidas); el defecto plantado da +107 %.
+TOLERANCIA_TIEMPO = 0.50
 EXCLUIR = "./tests,./benchmarks,./site,./reportes,./.venv"
 PIP_AUDIT = (
     "pip_audit -r requirements.txt -r requirements-dev.txt"
@@ -106,7 +109,7 @@ ETAPAS = {
 
 
 def comparar_benchmark():
-    """Falla si alguna operacion es mas de un 30 % mas lenta que la base.
+    """Falla si alguna operacion es mas de un 50 % mas lenta que la base.
 
     Compara tiempos relativos a ``test_referencia`` y no tiempos absolutos:
     asi la misma linea base sirve en cualquier maquina.

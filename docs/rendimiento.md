@@ -41,21 +41,27 @@ La línea base se midió en Windows. En la primera corrida aprobada del CI:
 
 Con un umbral en milisegundos, el CI hubiera marcado una regresión que no
 existe (el runner es más lento, nada más). En tiempo relativo la diferencia
-queda en +9 a +12 %, dentro de la tolerancia del 30 %.
+queda en +9 a +12 %.
 
-El procesador del runner cambia de una corrida a otra, y eso se nota:
+Pero esa fue una corrida. En las 7 que hicimos, sin cambios en el código que
+se mide, el tiempo relativo varió bastante más:
 
 | Corrida | Procesador del runner | Tiempo relativo contra la línea base |
 |---|---|---:|
 | Primera aprobada (push a `main`) | Intel Xeon Platinum 8573C | +0 a +12 % |
 | Pull request #2 | AMD EPYC 7763 | +16 a +27 % |
 | Merge del pull request #2 | Intel Xeon Platinum 8573C | +5 a +11 % |
+| Pull request #3, primera | AMD EPYC 7763 | +8 a +10 % (y +40 % falso en el caché, ver abajo) |
+| Pull request #3, con la corrección | AMD EPYC 9V74 | −5 a +0 % |
+| Pull request #3, repetida | AMD EPYC 9V74 | +22 a +31 % |
+| Pull request #3, repetida | AMD EPYC 9V45 | +17 a +28 % |
 
-El tiempo relativo compensa la velocidad de la máquina, pero no del todo la
-diferencia entre procesadores: todas las corridas aprobaron, aunque la del
-runner AMD quedó más cerca del límite. Si un runner llegara a superarlo sin
-cambios en el código, la solución es regenerar la línea base en el propio
-runner (ver abajo). Los controles que no
+El mismo modelo de procesador dio −5 % en una corrida y +31 % en otra: los
+runners son máquinas compartidas, y en algunas corridas el código del
+proyecto (que recorre estructuras grandes en memoria) se frena más que la
+referencia (cuentas simples). El tiempo relativo compensa la velocidad de la
+máquina, pero no ese ruido. Por eso la tolerancia es 50 % (ver abajo). Los
+controles que no
 dependen de la máquina dieron lo mismo: exponentes 1,96 y 1,15 (en Windows,
 2,00 y 1,14) y picos de memoria de 1.119,7 y 10.976,0 KiB (en Windows,
 1.121,7 y 10.976,3).
@@ -80,11 +86,14 @@ compara ese **tiempo relativo** con `benchmarks/linea_base.json`:
   vez de 40) y el acierto de caché dio +40 %, una regresión falsa. En local
   se reproduce igual: +33 % con 1 repetición por ronda, +8 a +12 % con 32
   o con 1.000.
-- **Se rechaza** si una operación es más de un **30 %** más lenta que la
+- **Se rechaza** si una operación es más de un **50 %** más lenta que la
   línea base. Entre corridas repetidas en la misma máquina la variación fue
-  de ±4 %, y entre runners de GitHub con distinto procesador llegó a +27 %:
-  un 30 % deja pasar esa diferencia y detecta una regresión real (el
-  defecto plantado dio +107 %).
+  de ±4 %, pero en los runners de GitHub llegó a +31 % sin cambios en el
+  código (con 30 % de tolerancia, una de cada tres corridas fallaba en
+  falso). Un 50 % deja pasar ese ruido y detecta una regresión real (el
+  defecto plantado dio +107 %). Los cambios de algoritmo más sutiles los
+  detecta la complejidad medida, que no depende de la máquina: cambiar el
+  heap por `min()` sube el exponente de 1,14 a 1,51.
 - La línea base se regenera con `python controles.py linea-base` (o desde
   GitHub, corriendo el workflow a mano con la opción *linea_base*) y entra
   al repositorio por pull request, como cualquier otro cambio.

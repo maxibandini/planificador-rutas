@@ -108,7 +108,7 @@ push / PR ──► calidad ──┬──► pruebas ──► rendimiento ─
 | Secretos | Gitleaks | SARIF | Cualquier secreto |
 | Dependencias | pip-audit + Dependabot | JSON | Vulnerabilidad conocida |
 | Documentación | MkDocs `--strict` | Sitio | No construye o hay un enlace roto |
-| Benchmark | pytest-benchmark | JSON | > 30 % más lento que la línea base |
+| Benchmark | pytest-benchmark | JSON | > 50 % más lento que la línea base |
 | Memoria | tracemalloc | JSON | Pico > 20 % sobre la línea base |
 | Profiling | cProfile | `.prof` y texto | No bloquea: sirve para decidir qué optimizar |
 
@@ -129,8 +129,11 @@ Por eso **no todos los controles usan el mismo criterio**:
   divide por una referencia en Python puro medida en la misma corrida, se
   toma el mínimo de varias rondas (el ruido solo suma tiempo) y ese cociente
   se compara con la línea base. En la misma máquina la variación entre
-  corridas fue de ±4 %; en GitHub depende del procesador del runner (ver
-  sección 8). La tolerancia es 30 %.
+  corridas fue de ±4 %, pero los runners de GitHub son máquinas
+  compartidas: en 7 corridas sin cambios en el código varió de −5 % a
+  +31 % (ver sección 8). La tolerancia es 50 %: deja pasar ese ruido y
+  rechaza el defecto plantado (+107 %). Los cambios de algoritmo más sutiles
+  los detecta la complejidad medida, que no depende de la máquina.
 - **Memoria:** tracemalloc cuenta objetos Python, no memoria del sistema
   operativo, y da casi el mismo número en Windows y en Linux. Tolerancia 20 %.
 
@@ -305,24 +308,27 @@ documentación publicada: <https://maxibandini.github.io/planificador-rutas/>.
 | Pull request de Dependabot | Propuso `mando` 0.8.2, incompatible con `radon` 6.0.1: **la instalación falla y el CI la rechaza**. Lo cerramos y le indicamos a Dependabot que no vuelva a proponerla |
 | Pull request #2 | **Aprobada**, en un runner con procesador AMD en lugar de Intel: el benchmark dio de +16 a +27 %, dentro de la tolerancia pero más cerca del límite |
 | Pull request #3 | **Rechazada por una regresión falsa**: el acierto de caché dio +40 % sin que cambiara su código. pytest-benchmark repitió la operación 2 veces por ronda (en las corridas anteriores, 40), y con 0,3 µs el reloj pesa más que la operación. En local se reproduce: +33 % con 1 repetición por ronda. Lo corregimos haciendo que cada ronda dure al menos 0,1 ms (unas 1.000 repeticiones) |
+| Pull request #3, tres corridas más | Para ver el ruido de los runners repetimos la corrida tres veces sin cambiar el código. Dos aprobaron (−5 a +28 %) y **una se rechazó**: todas las operaciones de +22 a +31 %, en el mismo modelo de procesador que una de las aprobadas. Ampliamos la tolerancia del tiempo a 50 % |
 
 **La línea base medida en Windows funcionó en Linux.** El runner es más
 lento: A* tarda 18,3 ms contra 12,7 ms en nuestra PC (+44 %). Con un umbral
 en milisegundos el CI hubiera marcado una regresión falsa. En tiempo
-relativo la diferencia quedó en +9 a +12 % en los runners Intel y llegó a
-+27 % en el AMD: el tiempo relativo compensa la velocidad de la máquina,
-pero no del todo la diferencia de procesador. Por eso la tolerancia es
-amplia (30 %) y, si un runner la superara sin cambios en el código, la
-línea base se regenera en el propio runner (workflow a mano con la opción
-*linea_base*). Los
+relativo la diferencia quedó en +9 a +12 % en la primera corrida, pero en
+las 7 corridas que hicimos varió de −5 % a +31 % sin cambios en el código:
+los runners son máquinas compartidas, y en algunas corridas el código del
+proyecto (que recorre estructuras grandes en memoria) se frena más que la
+referencia (cuentas simples). Por eso la tolerancia es 50 %: deja pasar ese
+ruido y sigue rechazando el defecto plantado (+107 %). Los
 controles que no dependen de la máquina dieron lo mismo que en Windows:
 exponentes 1,96 y 1,15 (contra 2,00 y 1,14) y memoria 1.119,7 KiB (contra
 1.121,7).
 
 Los dos primeros rechazos son justamente para lo que sirve un CI: ninguno se
-veía en la máquina donde escribimos el código. El tercero muestra lo
-contrario: un control de tiempos mal calibrado rechaza código correcto. Por
-eso el benchmark necesita repetición, y no solo tolerancia.
+veía en la máquina donde escribimos el código. Los del pull request #3
+muestran lo contrario: un control de tiempos mal calibrado, o con una
+tolerancia medida en una sola máquina, rechaza código correcto. Por eso el
+benchmark necesita repetición y una tolerancia medida en el mismo entorno
+donde corre.
 
 ## 9. Conclusiones
 
