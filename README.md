@@ -1,5 +1,7 @@
 # Planificador inteligente de rutas — Tercer parcial
 
+[![CI](https://github.com/maxibandini/planificador-rutas/actions/workflows/ci.yml/badge.svg)](https://github.com/maxibandini/planificador-rutas/actions/workflows/ci.yml)
+
 Programación Eficiente · Máximo Bandini y Lucas Caminos
 
 Encuentra la ruta de menor costo en una red de ciudades, responde miles de

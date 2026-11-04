@@ -104,6 +104,17 @@ por vez en una copia del proyecto y corrimos la etapa correspondiente con
 Cada defecto se revirtió antes de plantar el siguiente. Con el proyecto sin
 defectos, las cinco etapas terminan en `APROBADO`.
 
+## Las primeras corridas en GitHub
+
+| Corrida | Qué pasó |
+|---|---|
+| [Primera](https://github.com/maxibandini/planificador-rutas/actions/runs/41756581663) | **Rechazada en calidad.** mypy en Linux: `telemetria.py:80: Unused "type: ignore" comment`. Esa línea solo corre en Windows (corrige el reloj), así que en Linux mypy la ve inalcanzable y el `type: ignore` le sobra. En Windows pasaba. Se reprodujo con `mypy --platform linux` y se corrigió con `# type: ignore[attr-defined,unused-ignore]` |
+| [Segunda](https://github.com/maxibandini/planificador-rutas/actions/runs/41756817625) | **Aprobada**, las 7 etapas en 2 min 54 s: calidad 30 s, seguridad 26 s, pruebas 38 s, documentación 23 s, rendimiento 1 min 1 s, resultado 3 s, publicación 26 s |
+| Pull request de Dependabot | Propuso `mando` 0.8.2, pero `radon` 6.0.1 exige `mando<0.8`: **la instalación falla y el CI la rechaza**. Se cerró sin integrar y se agregó una regla `ignore` en `dependabot.yml` |
+
+Los dos rechazos son la razón de tener un CI: ninguno se veía en la máquina
+donde escribimos el código.
+
 ## Qué pasa cuando un control falla
 
 1. El job de la etapa termina en rojo y las etapas que dependen de él no
