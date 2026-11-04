@@ -87,7 +87,7 @@ generadas (`reportes/`, `site/`). Un falso positivo puntual se agrega a
 |---|---|
 | Bandit, severidad alta | 0 hallazgos (3.665 líneas analizadas; 9 excepciones documentadas arriba) |
 | pip-audit | `No known vulnerabilities found` en las 97 dependencias fijadas |
-| Gitleaks | **Sin verificar todavía.** No estaba instalado en la máquina donde escribimos esto (`controles.py` lo informa como *sin verificar* en lugar de aprobarlo) y el pipeline todavía no corrió en GitHub. Es lo primero que hay que confirmar en la primera corrida del CI |
+| Gitleaks 8.30.1 | 0 secretos en los archivos y en el historial de git (`gitleaks dir` y `gitleaks git`). Con un token de GitHub plantado de prueba, lo detecta (regla `github-pat`) y rechaza |
 
 ## Medidas correctivas aplicadas
 

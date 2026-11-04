@@ -99,7 +99,7 @@ por vez en una copia del proyecto y corrimos la etapa correspondiente con
 | Memoria | A* copia la lista de adyacencia antes de buscar | Rechazado: `a_estrella_10k_nodos: 2070.0 KiB supera el limite de 1346 KiB` (y también regresión de tiempo: +40 %) |
 | Complejidad medida | En `_busqueda_con_heap`, `min()` sobre una lista en lugar de `heapq.heappop` | Rechazado: `se esperaba O(V log V) (k ~ 1,1) y se midio k = 1.51`. Las pruebas funcionales pasaban todas |
 | Documentación viva | En `docs/api.md`, el ejemplo dice 16 nodos explorados en lugar de 17 | Rechazado: `FAILED docs/api.md::api.md`, `Expected: (4818.8, 16)  Got: (4818.8, 17)` |
-| Gitleaks | — | Se verifica en el CI (no estaba instalado en la máquina de prueba) |
+| Gitleaks | Un token de GitHub de prueba en `formato.py` | Rechazado: `leaks found: 1`, regla `github-pat` |
 
 Cada defecto se revirtió antes de plantar el siguiente. Con el proyecto sin
 defectos, las cinco etapas terminan en `APROBADO`.

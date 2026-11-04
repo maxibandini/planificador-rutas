@@ -12,7 +12,7 @@
 ## Instalación
 
 ```bash
-git clone https://github.com/OWNER/planificador-rutas.git
+git clone https://github.com/maxibandini/planificador-rutas.git
 cd planificador-rutas
 python -m venv .venv
 .venv\Scripts\activate              # Windows

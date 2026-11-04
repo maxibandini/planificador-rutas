@@ -20,7 +20,7 @@ aplicamos. El detalle técnico está en la documentación (`docs/`, se ve con
 | 2.2. Matriz de controles | Las 11 filas, con herramienta, comando, reporte y criterio | 12 controles que bloquean y 2 reportes |
 | 2.2. Seguridad | Bandit, pip-audit, Gitleaks, Dependabot | Política por severidad, falsos positivos documentados |
 | 3. Diseño por etapas | Lo rápido primero, lo independiente en paralelo | Calidad → pruebas / seguridad / documentación → rendimiento |
-| 3.1. Si un control falla | Un defecto plantado por control | 12 de 12 rechazados |
+| 3.1. Si un control falla | Un defecto plantado por control | 13 de 13 rechazados |
 | Evolución | El pipeline nuevo corrido sobre el código del parcial 2 | Parcial 2: RECHAZADO; parcial 3: APROBADO, mismo rendimiento |
 
 ---
@@ -196,6 +196,7 @@ están fijadas y pip-audit audita exactamente lo que se instala.
 | Memoria | A* copia la lista de adyacencia | Rechazado: 2.070 KiB, límite 1.346 |
 | Complejidad | `min()` sobre una lista en lugar del heap | Rechazado: k = 1,51 (las pruebas pasaban) |
 | Documentación | Un ejemplo de `api.md` con un número viejo | Rechazado |
+| Gitleaks | Un token de GitHub de prueba en el código | Rechazado: regla `github-pat` |
 
 Cuando falla un control, su etapa queda en rojo, las que dependen de ella no
 corren, `resultado` falla y GitHub no deja integrar el pull request. Se
@@ -292,9 +293,7 @@ rendimiento.
 1. **El pipeline todavía no corrió en una plataforma de CI.** Lo verificamos
    localmente con los mismos comandos que usa cada job, pero falta subir el
    repositorio y adjuntar una corrida en verde.
-2. **Gitleaks no se ejecutó en local** (no lo pudimos instalar en la máquina
-   de trabajo); en el CI se descarga en una versión fija.
-3. **La línea base del benchmark se midió en Windows.** El tiempo relativo
+2. **La línea base del benchmark se midió en Windows.** El tiempo relativo
    compensa la velocidad de la máquina, pero si la primera corrida en Linux
    marca regresión, se regenera en el runner (*Run workflow* → *linea_base*).
    El control de complejidad no tiene este problema.

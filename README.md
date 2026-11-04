@@ -1,6 +1,6 @@
 # Planificador inteligente de rutas — Tercer parcial
 
-Programación Eficiente · Maximo Bandini y Lucas Caminos
+Programación Eficiente · Máximo Bandini y Lucas Caminos
 
 Encuentra la ruta de menor costo en una red de ciudades, responde miles de
 consultas con caché, procesa archivos grandes por lotes y se expone como API
@@ -15,7 +15,7 @@ web (Flask). Este tercer parcial le agrega al proyecto:
 
 | Consigna | Dónde |
 |---|---|
-| 1. Documentación externa (9 secciones) | `docs/` (se publica en GitHub Pages desde el CI) |
+| 1. Documentación externa (9 secciones) | `docs/` → [sitio publicado](https://maxibandini.github.io/planificador-rutas/) |
 | Cómo correr localmente los controles del CI | `python controles.py` · `docs/mantenimiento.md` |
 | 2. Pipeline de CI y matriz de controles | `.github/workflows/ci.yml` · `docs/ci.md` |
 | Requisitos de seguridad y política de bloqueo | `docs/seguridad.md` · `.gitleaks.toml` · `.github/dependabot.yml` |
