@@ -77,7 +77,8 @@ def _corregir_reloj_en_windows() -> None:
     reloj = reloj_de_alta_resolucion()
     for modulo in (sdk_trace, instrumentacion_flask):
         if hasattr(modulo, "time_ns"):
-            modulo.time_ns = reloj  # type: ignore[attr-defined]
+            # Solo corre en Windows: en Linux mypy ve la linea inalcanzable.
+            modulo.time_ns = reloj  # type: ignore[attr-defined,unused-ignore]
 
 
 # [EXPO 3] APM: OpenTelemetry exporta las trazas a Jaeger por OTLP.
