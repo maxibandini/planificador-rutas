@@ -89,7 +89,7 @@ def bfs(red: Red, origen: Nodo, destino: Nodo) -> Resultado:
     return Resultado(None, inf, explorados)
 
 
-# [EXPO P1] Baseline O(V^2): el min() de abajo es el cuello de botella.
+# Baseline O(V^2): el min() de abajo es el cuello de botella.
 def dijkstra_lista(red: Red, origen: Nodo, destino: Nodo) -> Resultado:
     """Dijkstra que busca el pendiente mas cercano recorriendo todos.
 
@@ -137,7 +137,7 @@ def _sin_heuristica(_nodo: Nodo, _destino: Nodo) -> float:
     return 0.0
 
 
-# [EXPO 1] Codigo redundante: Dijkstra y A* ahora comparten esta funcion.
+# Codigo redundante: Dijkstra y A* ahora comparten esta funcion.
 def _busqueda_con_heap(
     red: Red, origen: Nodo, destino: Nodo, heuristica: Heuristica
 ) -> Resultado:
@@ -183,7 +183,7 @@ def _busqueda_con_heap(
             if candidata < costo_hasta.get(vecino, inf):
                 costo_hasta[vecino] = candidata
                 previo[vecino] = actual
-                # [EXPO 1] Calculo repetido que NO eliminamos: memoizar h
+                # Calculo repetido que NO eliminamos: memoizar h
                 # fue 0-10 % mas lento (el dict cuesta lo mismo que hypot).
                 prioridad = candidata + heuristica(vecino, destino)
                 heapq.heappush(frontera, (prioridad, candidata, vecino))
@@ -191,7 +191,7 @@ def _busqueda_con_heap(
     return Resultado(None, inf, explorados)
 
 
-# [EXPO 1] Dijkstra = A* con heuristica cero: una linea cada uno.
+# Dijkstra = A* con heuristica cero: una linea cada uno.
 def dijkstra_heap(red: Red, origen: Nodo, destino: Nodo) -> Resultado:
     """Dijkstra con heap: el minimo sale en O(log V) en vez de O(V).
 

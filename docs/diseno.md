@@ -62,4 +62,4 @@ rutas: O(rutas afectadas), no O(rutas guardadas).
 | `newline="\n"` en todas las escrituras | Las cuatro estrategias generan archivos idénticos byte a byte, también en Windows | Test `test_las_cuatro_tuberias_dan_la_misma_salida` |
 | OpenTelemetry en lugar de un agente propietario | Estándar abierto: el mismo código sirve para Jaeger, Elastic APM o New Relic | — |
 | Globales de los procesos hijos declaradas sin valor (`_red_del_trabajador: Red`) | mypy marcaba que podían ser `None`; se asignan siempre en el initializer del pool | mypy: 6 errores → 0 (ver [Evolución](evolucion.md#los-6-errores-que-encontro-mypy)) |
-| Benchmark relativo a una referencia en Python puro | Los tiempos absolutos cambian entre la notebook, la PC y el runner | Variación entre corridas ±4 % (ver [Rendimiento](rendimiento.md)) |
+| Benchmark relativo a una referencia en Python puro | Los tiempos absolutos cambian entre la notebook, la PC y el runner | Variación ±4 % en la misma máquina y hasta +27 % entre runners, con tolerancia de 30 % (ver [Rendimiento](rendimiento.md)) |

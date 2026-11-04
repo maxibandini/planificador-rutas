@@ -17,7 +17,7 @@ Nodo = Hashable
 """Identificador de un nodo: nombre de ciudad (str) o numero (int)."""
 
 
-# [EXPO 5] Docstring estilo Google, con ejemplo ejecutable y tipos.
+# Docstring estilo Google, con ejemplo ejecutable y tipos.
 class Red:
     """Grafo no dirigido con pesos.
 
@@ -158,7 +158,7 @@ FACTOR_TRAMO = (1.05, 1.35)
 FACTOR_AUTOPISTA = (1.05, 1.05)
 
 
-# [EXPO 8] Refactor "Long Parameter List": el rango va en una tupla.
+# Refactor "Long Parameter List": el rango va en una tupla.
 def _conectar(
     red: Red,
     a: Nodo,

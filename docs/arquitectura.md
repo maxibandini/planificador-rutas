@@ -114,11 +114,11 @@ procesar_en_paralelo():
 
 ```text
 planificador/        paquete principal (ver tabla de módulos)
-tests/               119 pruebas: unitarias, integración, API, doctests, rendimiento relativo, controles.py
+tests/               100 pruebas: unitarias, integración, API, rendimiento relativo, controles.py (121 con los doctests)
 benchmarks/          benchmark, memoria, complejidad medida y linea_base.json
 docs/                esta documentación (MkDocs)
 .github/             pipeline de CI (workflows/ci.yml) y Dependabot
 controles.py         los controles del CI, para correr localmente
 main.py banco.py banco_es.py perfilado.py compiladores.py servidor.py carga_api.py
-resultados/          mediciones de los parciales anteriores
+resultados/          lo que generan los scripts de medición (no se versiona)
 ```

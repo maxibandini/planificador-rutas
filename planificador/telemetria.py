@@ -58,7 +58,7 @@ def reloj_de_alta_resolucion() -> Callable[[], int]:
     return lambda: base + time.perf_counter_ns()
 
 
-# [EXPO 3] Problema real: el reloj de Windows dejaba los spans en 0 ms.
+# Problema real: el reloj de Windows dejaba los spans en 0 ms.
 def _corregir_reloj_en_windows() -> None:
     """Da a OpenTelemetry un reloj preciso en Windows con Python < 3.13.
 
@@ -68,7 +68,6 @@ def _corregir_reloj_en_windows() -> None:
     """
     if sys.platform != "win32" or sys.version_info >= (3, 13):
         return
-    # pylint: disable=import-outside-toplevel
     import opentelemetry.instrumentation.flask as instrumentacion_flask
     import opentelemetry.sdk.trace as sdk_trace
 
@@ -81,7 +80,7 @@ def _corregir_reloj_en_windows() -> None:
             modulo.time_ns = reloj  # type: ignore[attr-defined,unused-ignore]
 
 
-# [EXPO 3] APM: OpenTelemetry exporta las trazas a Jaeger por OTLP.
+# APM: OpenTelemetry exporta las trazas a Jaeger por OTLP.
 def configurar_trazas(
     nombre_servicio: str = NOMBRE_SERVICIO,
     endpoint: str = ENDPOINT_OTLP,
@@ -105,7 +104,6 @@ def configurar_trazas(
     """
     if exportador is None:
         # Import perezoso: el exportador OTLP solo se carga si se usa.
-        # pylint: disable-next=import-outside-toplevel
         from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
             OTLPSpanExporter,
         )
@@ -137,7 +135,6 @@ def instrumentar_flask(app: Flask) -> None:
     Args:
         app: Aplicacion Flask a instrumentar.
     """
-    # pylint: disable-next=import-outside-toplevel
     from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
     FlaskInstrumentor().instrument_app(app)

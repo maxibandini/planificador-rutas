@@ -12,4 +12,5 @@ __pycache__/
 reportes/
 site/
 scalene-profile.json
-resultados/*_rapido.json
+# mediciones de banco.py, banco_es.py, perfilado.py y compiladores.py
+resultados/

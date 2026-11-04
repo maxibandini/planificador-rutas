@@ -69,8 +69,9 @@ reportes como **artefacto** (`reportes-calidad`, `reportes-pruebas`,
   un error, sin tolerancia.
 - El **benchmark** varía con la máquina y la carga. Por eso: muchas rondas,
   el mínimo y no el promedio, tiempo **relativo** a una referencia medida en
-  la misma corrida, y una tolerancia del 30 % (la variación observada entre
-  corridas fue de ±4 %).
+  la misma corrida, y una tolerancia del 30 % (la variación observada fue
+  de ±4 % en la misma máquina y de hasta +27 % entre runners de GitHub con
+  distinto procesador).
 - La **memoria** con tracemalloc casi no varía (cuenta objetos Python, no
   memoria del sistema operativo); igual se da un 20 % de margen para
   cambios menores de versión de Python.

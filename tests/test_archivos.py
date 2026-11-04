@@ -89,7 +89,7 @@ def test_las_escrituras_generan_el_mismo_archivo(tmp_path, escribir):
     assert salida.read_bytes() == referencia.read_bytes()
 
 
-# [EXPO 9] Las 4 versiones de la tuberia generan el mismo archivo.
+# Las 4 versiones de la tuberia generan el mismo archivo.
 @pytest.mark.lento
 def test_las_cuatro_tuberias_dan_la_misma_salida(tmp_path, red_ar, entrada):
     salidas = []

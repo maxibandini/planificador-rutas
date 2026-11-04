@@ -49,7 +49,7 @@ def test_contains(red_ar):
     assert "Atlantida" not in red_ar
 
 
-# [EXPO 9] pytest tambien corre tests escritos con unittest.
+# pytest tambien corre tests escritos con unittest.
 class TestRedConUnittest(unittest.TestCase):
     """pytest tambien corre tests escritos con unittest (compatibilidad)."""
 

@@ -39,5 +39,5 @@ mkdocs serve                           # la documentación
 
 Todo lo demás está en la documentación (`docs/index.md`).
 
-`INFORME-parcial-2.md` y `resultados/` son el informe y las mediciones del segundo
-parcial, sin cambios.
+Qué cambió respecto del segundo parcial: `docs/evolucion.md` (y, archivo por
+archivo, `CHANGELOG.md`).

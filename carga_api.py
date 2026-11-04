@@ -91,7 +91,7 @@ def imprimir_latencias(resultados: list[tuple[bool, float]]) -> None:
             )
 
 
-# [EXPO 3] Genera trafico para ver las trazas en Jaeger.
+# Genera trafico para ver las trazas en Jaeger.
 def main() -> None:
     """Punto de entrada."""
     parser = argparse.ArgumentParser(description="Carga para la API")

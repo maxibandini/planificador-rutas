@@ -155,7 +155,7 @@ class Etapa(NamedTuple):
     args_memoria: tuple
 
 
-# [EXPO 8] Refactor: etapas en una lista (antes 5 bloques copiados).
+# Refactor: etapas en una lista (antes 5 bloques copiados).
 def medir_tabla(red: Red, lote: list[Consulta]) -> list[Fila]:
     """Tabla comparativa obligatoria del primer parcial.
 
@@ -224,7 +224,7 @@ def medir_tabla(red: Red, lote: list[Consulta]) -> list[Fila]:
 
     filas = []
     for etapa in etapas:
-        # [EXPO P1] Corregimos la tabla del P1: el tiempo se mide SIN
+        # Corregimos la tabla del P1: el tiempo se mide SIN
         # tracemalloc y la memoria en otra pasada.
         salida, segundos = mejor_de(
             REPETICIONES_TABLA, etapa.funcion, *etapa.args_tiempo
@@ -393,7 +393,7 @@ def imprimir_concurrencia(arranque: float, barrido: list[Fila]) -> None:
 # ------------------------------------------------------------------ main
 
 
-# [EXPO 8] Refactor: main() de 95 sentencias -> medir_* + imprimir_*.
+# Refactor: main() de 95 sentencias -> medir_* + imprimir_*.
 def main() -> None:
     """Corre las cinco secciones y guarda las mediciones en JSON."""
     rapido = "--rapido" in sys.argv

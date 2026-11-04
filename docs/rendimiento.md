@@ -41,7 +41,21 @@ La línea base se midió en Windows. En la primera corrida aprobada del CI:
 
 Con un umbral en milisegundos, el CI hubiera marcado una regresión que no
 existe (el runner es más lento, nada más). En tiempo relativo la diferencia
-queda en +9 a +12 %, dentro de la tolerancia del 30 %. Los controles que no
+queda en +9 a +12 %, dentro de la tolerancia del 30 %.
+
+El procesador del runner cambia de una corrida a otra, y eso se nota:
+
+| Corrida | Procesador del runner | Tiempo relativo contra la línea base |
+|---|---|---:|
+| Primera aprobada (push a `main`) | Intel Xeon Platinum 8573C | +0 a +12 % |
+| Pull request #2 | AMD EPYC 7763 | +16 a +27 % |
+| Merge del pull request #2 | Intel Xeon Platinum 8573C | +5 a +11 % |
+
+El tiempo relativo compensa la velocidad de la máquina, pero no del todo la
+diferencia entre procesadores: todas las corridas aprobaron, aunque la del
+runner AMD quedó más cerca del límite. Si un runner llegara a superarlo sin
+cambios en el código, la solución es regenerar la línea base en el propio
+runner (ver abajo). Los controles que no
 dependen de la máquina dieron lo mismo: exponentes 1,96 y 1,15 (en Windows,
 2,00 y 1,14) y picos de memoria de 1.119,7 y 10.976,0 KiB (en Windows,
 1.121,7 y 10.976,3).
@@ -61,7 +75,9 @@ compara ese **tiempo relativo** con `benchmarks/linea_base.json`:
   cambiando de frecuencia) solo puede sumar tiempo.
 - **Se rechaza** si una operación es más de un **30 %** más lenta que la
   línea base. Entre corridas repetidas en la misma máquina la variación fue
-  de ±4 %, así que un 30 % es una regresión real y no ruido.
+  de ±4 %, y entre runners de GitHub con distinto procesador llegó a +27 %:
+  un 30 % deja pasar esa diferencia y detecta una regresión real (el
+  defecto plantado dio +107 %).
 - La línea base se regenera con `python controles.py linea-base` (o desde
   GitHub, corriendo el workflow a mano con la opción *linea_base*) y entra
   al repositorio por pull request, como cualquier otro cambio.

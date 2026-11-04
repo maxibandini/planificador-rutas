@@ -13,7 +13,7 @@ from planificador.red import Nodo, Red
 Consulta = tuple[Nodo, Nodo]
 
 
-# [EXPO 1] Reemplaza a generar_lote() y generar_consultas() del P1.
+# Reemplaza a generar_lote() y generar_consultas() del P1.
 def generar_consultas(
     red: Red,
     cantidad: int,

@@ -43,6 +43,12 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
   (su contenido está en `docs/arquitectura.md` y `docs/mantenimiento.md`).
 - `calidad.py`: el reporte local estilo SonarQube lo reemplazan los
   controles del CI.
+- El informe y las mediciones del segundo parcial (`INFORME-parcial-2.md`,
+  `resultados/`): lo que cambió desde entonces está en `docs/evolucion.md`.
+  `resultados/` ahora solo lo generan los scripts de medición y no se
+  versiona.
+- Las marcas `[EXPO N]` de la exposición del segundo parcial y los
+  comentarios `# pylint: disable` (Pylint ya no es parte de los controles).
 
 ## [2.0.0] — Segundo parcial
 

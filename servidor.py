@@ -66,7 +66,7 @@ def puerto_ocupado(puerto: int) -> bool:
         return False
 
 
-# [EXPO 10] waitress sirve la app Flask; --telemetria activa [EXPO 3].
+# waitress sirve la app Flask; --telemetria activa OpenTelemetry.
 def main() -> None:
     """Punto de entrada."""
     argumentos = leer_argumentos()
@@ -94,7 +94,6 @@ def main() -> None:
             app.run(host=HOST, port=argumentos.puerto, debug=True)
         else:
             # import perezoso: el modo desarrollo no necesita waitress
-            # pylint: disable-next=import-outside-toplevel
             from waitress import serve
 
             serve(app, host=HOST, port=argumentos.puerto, threads=HILOS)
