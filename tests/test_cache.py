@@ -8,7 +8,7 @@ from planificador.algoritmos import a_estrella
 from planificador.cache import CacheDeRutas, clave_de_tramo, crear_memoizado
 
 
-# [EXPO 9] Mock: un acierto de cache no llama al algoritmo.
+# Mock: un acierto de cache no llama al algoritmo.
 def test_acierto_no_vuelve_a_calcular(red_ar):
     algoritmo = mock.Mock(side_effect=a_estrella)
     cache = CacheDeRutas(red_ar, algoritmo=algoritmo)

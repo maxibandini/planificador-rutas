@@ -21,7 +21,7 @@ packages = ["planificador"]
 # ------------------------------------------------------------------ Ruff
 # Linter y formateador. Reemplaza a pycodestyle + pyflakes + isort +
 # pydocstyle con una sola herramienta.
-# [EXPO 5] PEP 8: Ruff con lineas de 79 y docstrings estilo Google.
+# PEP 8: Ruff con lineas de 79 y docstrings estilo Google.
 [tool.ruff]
 line-length = 79            # PEP 8: maximo 79 caracteres por linea
 target-version = "py312"
@@ -47,7 +47,7 @@ convention = "google"
 "benchmarks/*" = ["D"]
 
 # ---------------------------------------------------------------- pytest
-# [EXPO 9] pytest corre los tests y los doctests de los docstrings.
+# pytest corre los tests y los doctests de los docstrings.
 [tool.pytest.ini_options]
 # "docs": los ejemplos >>> de la documentacion tambien se ejecutan.
 testpaths = ["tests", "planificador", "docs"]

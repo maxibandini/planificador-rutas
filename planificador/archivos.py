@@ -61,7 +61,7 @@ def _controlar_lote(tamanio: int) -> None:
         raise ValueError("El tamanio de lote tiene que ser positivo")
 
 
-# [EXPO 4] BATCHING: agrupa cualquier iterable en lotes, sin cargar todo.
+# BATCHING: agrupa cualquier iterable en lotes, sin cargar todo.
 def en_lotes[T](elementos: Iterable[T], tamanio: int) -> Iterator[list[T]]:
     """Agrupa cualquier iterable en listas de ``tamanio`` elementos.
 
@@ -193,7 +193,7 @@ def _parsear_lineas(
         ) from error
 
 
-# [EXPO 4] Ingenua: readlines() carga el archivo entero en memoria.
+# Ingenua: readlines() carga el archivo entero en memoria.
 def leer_todo(ruta: Ruta) -> list[ConsultaTexto]:
     """Lee el archivo entero con ``readlines()``. Version ingenua.
 
@@ -214,7 +214,7 @@ def leer_todo(ruta: Ruta) -> list[ConsultaTexto]:
     return list(_parsear_lineas(lineas, ruta))
 
 
-# [EXPO 4] STREAMING: generador, la memoria no crece con el archivo.
+# STREAMING: generador, la memoria no crece con el archivo.
 def leer_consultas(ruta: Ruta) -> Iterator[ConsultaTexto]:
     """Lee el archivo linea a linea (streaming).
 
@@ -309,7 +309,7 @@ def _abrir_salida(ruta: Ruta, modo: str = "w", buffer: int = -1) -> IO[str]:
     return open(ruta, modo, encoding="utf-8", newline="\n", buffering=buffer)
 
 
-# [EXPO 4] Ingenua: abre y cierra el archivo por cada linea.
+# Ingenua: abre y cierra el archivo por cada linea.
 def escribir_abriendo_por_linea(ruta: Ruta, lineas: Iterable[str]) -> int:
     """Abre, escribe y cierra el archivo por cada linea. Version ingenua.
 
@@ -332,7 +332,7 @@ def escribir_abriendo_por_linea(ruta: Ruta, lineas: Iterable[str]) -> int:
     return escritas
 
 
-# [EXPO 4] BUFFER: una sola apertura; el buffer junta las escrituras.
+# BUFFER: una sola apertura; el buffer junta las escrituras.
 def escribir_con_buffer(
     ruta: Ruta, lineas: Iterable[str], buffer: int = BUFFER_GRANDE
 ) -> int:
@@ -354,7 +354,7 @@ def escribir_con_buffer(
     return escritas
 
 
-# [EXPO 4] BATCHING: un solo writelines por lote.
+# BATCHING: un solo writelines por lote.
 def escribir_por_lotes(
     ruta: Ruta,
     lineas: Iterable[str],
@@ -422,7 +422,7 @@ def _validar_rutas(entrada: Ruta, salida: Ruta) -> None:
         )
 
 
-# [EXPO 4] Tuberia completa en 4 versiones, de V0 (peor) a V3 (mejor).
+# Tuberia completa en 4 versiones, de V0 (peor) a V3 (mejor).
 def procesar_ingenuo(red: Red, entrada: Ruta, salida: Ruta) -> int:
     """Todo en memoria, sin cache y abriendo la salida por cada linea.
 
@@ -484,13 +484,12 @@ def procesar_por_lotes(
 # Cada proceso hijo tiene su propia cache (con su copia del mapa): no se
 # comparten entre procesos, asi que no hacen falta locks.
 # Sin valor inicial: lo asigna el initializer al arrancar cada proceso.
-_cache_del_trabajador: CacheDeRutas  # pylint: disable=C0103
+_cache_del_trabajador: CacheDeRutas
 
 
 def _iniciar_trabajador_de_archivos(red: Red) -> None:
     """Initializer del pool: crea la cache propia de cada proceso."""
     # Un global por proceso hijo es el patron del initializer del pool.
-    # pylint: disable-next=global-statement
     global _cache_del_trabajador
     _cache_del_trabajador = CacheDeRutas(red, capacidad=CAPACIDAD_CACHE)
 
@@ -505,7 +504,7 @@ def _resolver_lote_en_proceso(lote: list[ConsultaTexto]) -> str:
     return "".join(resolver_consultas(cache.red, lote, cache))
 
 
-# [EXPO 4] PARALELO: lotes repartidos en procesos, ventana acotada.
+# PARALELO: lotes repartidos en procesos, ventana acotada.
 def procesar_en_paralelo(
     red: Red,
     entrada: Ruta,
@@ -560,7 +559,7 @@ CREATE TABLE IF NOT EXISTS resultados (
 _INSERTAR = "INSERT INTO resultados VALUES (?, ?, ?, ?)"
 
 
-# [EXPO 4] BATCHING en base de datos: commit por fila vs por lote.
+# BATCHING en base de datos: commit por fila vs por lote.
 def guardar_en_sqlite_uno_a_uno(
     ruta_base: Ruta, filas: Iterable[FilaResultado]
 ) -> int:

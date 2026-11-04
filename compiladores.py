@@ -67,7 +67,7 @@ CARGAS_DE_TRABAJO = {
 }
 
 
-# [EXPO 2] Compilador JIT: PyPy contra CPython con el mismo codigo.
+# Compilador JIT: PyPy contra CPython con el mismo codigo.
 def medir_interprete_actual() -> dict:
     """Mide cada carga con el interprete que esta corriendo este script.
 

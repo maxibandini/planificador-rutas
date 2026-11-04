@@ -66,7 +66,7 @@ def test_sin_camino_devuelve_none_e_infinito(red_desconectada, algoritmo):
     assert resultado.costo == inf
 
 
-# [EXPO 9] Regresion: el refactor no cambio la ruta del P1.
+# Regresion: el refactor no cambio la ruta del P1.
 def test_regresion_ruta_conocida(red_ar):
     # Prueba de regresion: la refactorizacion no cambio el resultado del
     # primer parcial (misma ruta, mismo costo, mismos nodos explorados).

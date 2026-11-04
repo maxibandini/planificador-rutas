@@ -14,7 +14,7 @@
   ramas baja del **90 %**.
 
 ```bash
-pytest                                  # las 121 pruebas (~4 s)
+pytest                                  # las 122 pruebas (~4 s)
 pytest -m "not rendimiento"             # sin las de rendimiento relativo
 python controles.py pruebas             # igual que el CI: con cobertura y reportes
 ```
@@ -33,18 +33,18 @@ python controles.py pruebas             # igual que el CI: con cobertura y repor
 | Rendimiento relativo | `test_rendimiento.py` | 5 | heap 5x más rápido que lista; acierto de caché 50x más rápido que calcular; streaming 20x menos memoria |
 | Doctests | `planificador/*.py` | 19 | los `Example:` de los docstrings |
 | Documentación viva | `docs/api.md`, `docs/diseno.md` | 2 | los ejemplos de la documentación: si el código cambia y el ejemplo deja de ser cierto, falla |
-| Controles del CI | `test_controles.py` | 3 | un control que falla termina con código 1; una etapa desconocida, con código 2; un programa externo ausente queda *sin verificar*, no aprobado |
-| **Total** | | **121** | |
+| Controles del CI | `test_controles.py` | 4 | un control que falla termina con código 1; una etapa desconocida, con código 2; un programa externo ausente queda *sin verificar*, no aprobado; la línea base de varias corridas es la mediana |
+| **Total** | | **122** | |
 
 Además, `benchmarks/` tiene 5 benchmarks, 2 controles de memoria y 3
 contratos de complejidad que corren en la etapa de rendimiento (ver [Rendimiento](rendimiento.md)).
 
 ## Resultados
 
-Corrida local (Ryzen 7 7800X3D, Windows 11, Python 3.14.6):
+Corrida en el CI (Linux, Python 3.14):
 
 ```text
-121 passed in 3.38s
+122 passed
 TOTAL   776 sentencias   35 sin cubrir   176 ramas   10 parciales   95 %
 Required test coverage of 90.0% reached. Total coverage: 94.85%
 ```

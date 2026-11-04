@@ -45,8 +45,8 @@ Cada uno tiene un control automático en el CI (ver [Integración continua](ci.m
 
 | Id | Requisito | Cómo se verifica |
 |---|---|---|
-| RNF1 | Correctitud: las rutas de los cuatro algoritmos tienen el mismo costo | 121 pruebas, cobertura ≥ 90 % |
-| RNF2 | Rendimiento: ninguna operación representativa empeora más de un 30 % | Benchmark contra línea base |
+| RNF1 | Correctitud: las rutas de los cuatro algoritmos tienen el mismo costo | 122 pruebas, cobertura ≥ 90 % |
+| RNF2 | Rendimiento: ninguna operación representativa empeora más de un 50 % | Benchmark contra línea base |
 | RNF3 | Memoria: A* sobre 10.000 nodos y el procesamiento de archivos no superan su línea base en más de un 20 % | `tracemalloc` |
 | RNF3b | Complejidad: el tiempo de Dijkstra con lista crece como V² y el de Dijkstra con heap como V log V; la lectura por streaming usa memoria constante | Exponente medido en escala log-log |
 | RNF4 | Mantenibilidad: complejidad ciclomática ≤ 10 y funciones de ≤ 50 líneas | Lizard |

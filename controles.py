@@ -6,7 +6,8 @@ pasa en GitHub Actions.
 
     python controles.py                 # todas las etapas, en orden
     python controles.py calidad         # una sola etapa
-    python controles.py linea-base      # regenerar la linea base
+    python controles.py linea-base      # medir la linea base en esta maquina
+    python controles.py linea-base a.json b.json ...   # mediana de corridas
 
 Etapas: calidad, pruebas, seguridad, documentacion, rendimiento.
 Los reportes quedan en la carpeta ``reportes/``.
@@ -16,13 +17,18 @@ import cProfile
 import json
 import pstats
 import shutil
+import statistics
 import subprocess  # nosec B404
 import sys
 from pathlib import Path
 
 REPORTES = Path("reportes")
 LINEA_BASE = Path("benchmarks/linea_base.json")
-TOLERANCIA_TIEMPO = 0.30  # mas de un 30 % sobre la linea base es regresion
+# Mas de un 50 % sobre la linea base es regresion. La linea base es la
+# mediana de 7 corridas en GitHub; contra ella, 11 corridas sin cambios en el
+# codigo variaron de -23 % a +19 % (los runners son maquinas compartidas) y
+# el defecto plantado da al menos +60 %.
+TOLERANCIA_TIEMPO = 0.50
 EXCLUIR = "./tests,./benchmarks,./site,./reportes,./.venv"
 PIP_AUDIT = (
     "pip_audit -r requirements.txt -r requirements-dev.txt"
@@ -83,10 +89,14 @@ ETAPAS = {
         ("MkDocs: sitio y enlaces internos", "mkdocs build --strict"),
     ],
     "rendimiento": [
+        # min-time: cada ronda dura al menos 0,1 ms. Asi el acierto de cache
+        # (0,3 us) se repite ~1.000 veces por ronda; con 1 o 2 repeticiones
+        # el reloj pesa mas que la operacion y da una regresion falsa.
         (
             "Benchmarks (pytest-benchmark)",
             "pytest benchmarks/test_benchmark.py --benchmark-only"
-            " --benchmark-min-rounds=5 --benchmark-time-unit=ms"
+            " --benchmark-min-rounds=5 --benchmark-min-time=0.0001"
+            " --benchmark-time-unit=ms"
             " --benchmark-columns=min,mean,stddev,rounds"
             " --benchmark-json=reportes/benchmark.json",
         ),
@@ -102,7 +112,7 @@ ETAPAS = {
 
 
 def comparar_benchmark():
-    """Falla si alguna operacion es mas de un 30 % mas lenta que la base.
+    """Falla si alguna operacion es mas de un 50 % mas lenta que la base.
 
     Compara tiempos relativos a ``test_referencia`` y no tiempos absolutos:
     asi la misma linea base sirve en cualquier maquina.
@@ -122,8 +132,8 @@ def comparar_benchmark():
     return ok
 
 
-def _tiempos_relativos():
-    datos = json.loads((REPORTES / "benchmark.json").read_text("utf-8"))
+def _tiempos_relativos(archivo=REPORTES / "benchmark.json"):
+    datos = json.loads(Path(archivo).read_text("utf-8"))
     minimos = {b["name"]: b["stats"]["min"] for b in datos["benchmarks"]}
     referencia = minimos.pop("test_referencia")
     return {n: float(f"{t / referencia:.4g}") for n, t in minimos.items()}
@@ -174,13 +184,29 @@ def correr(nombre, comando):
     return resultado.returncode == 0
 
 
-def generar_linea_base():
-    """Mide en esta maquina y guarda la nueva linea base."""
-    for nombre, comando in ETAPAS["rendimiento"]:
-        if nombre.startswith(("Benchmarks", "Memoria")):
-            correr(nombre, comando)
-    memoria = json.loads((REPORTES / "memoria.json").read_text("utf-8"))
-    base = {"tiempos": _tiempos_relativos(), "memoria_kib": memoria}
+def generar_linea_base(corridas=()):
+    """Guarda la nueva linea base.
+
+    Sin argumentos mide en esta maquina. Con los ``benchmark.json`` de
+    varias corridas del CI (artefacto ``reportes-rendimiento``) guarda la
+    mediana de cada operacion: los runners de GitHub varian de una corrida a
+    otra, y la mediana no depende de una corrida extrema. La memoria casi no
+    varia y se conserva la de la linea base actual.
+    """
+    if corridas:
+        medidas = [_tiempos_relativos(archivo) for archivo in corridas]
+        tiempos = {
+            nombre: statistics.median(m[nombre] for m in medidas)
+            for nombre in medidas[0]
+        }
+        memoria = json.loads(LINEA_BASE.read_text("utf-8"))["memoria_kib"]
+    else:
+        for nombre, comando in ETAPAS["rendimiento"]:
+            if nombre.startswith(("Benchmarks", "Memoria")):
+                correr(nombre, comando)
+        tiempos = _tiempos_relativos()
+        memoria = json.loads((REPORTES / "memoria.json").read_text("utf-8"))
+    base = {"tiempos": tiempos, "memoria_kib": memoria}
     texto = json.dumps(base, indent=2) + "\n"
     LINEA_BASE.write_text(texto, encoding="utf-8")
     print(f"\nLinea base guardada en {LINEA_BASE}:\n{texto}")
@@ -190,8 +216,8 @@ def main():
     """Corre las etapas pedidas y termina con codigo 1 si alguna fallo."""
     REPORTES.mkdir(exist_ok=True)
     pedidas = sys.argv[1:] or list(ETAPAS)
-    if pedidas == ["linea-base"]:
-        generar_linea_base()
+    if pedidas[0] == "linea-base":
+        generar_linea_base(pedidas[1:])
         return
     desconocidas = [etapa for etapa in pedidas if etapa not in ETAPAS]
     if desconocidas:

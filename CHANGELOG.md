@@ -33,6 +33,12 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
   también las de las dependencias indirectas.
 - Python mínimo: 3.12 (sintaxis de tipos genéricos de PEP 695 en
   `archivos.en_lotes`).
+- Benchmark del CI: cada ronda dura al menos 0,1 ms (el acierto de caché se
+  medía con 1 o 2 repeticiones por ronda y daba regresiones falsas), la
+  línea base es la mediana de 7 corridas en el runner de GitHub
+  (`python controles.py linea-base <benchmark.json...>`) y la tolerancia
+  pasa de 30 % a 50 %: con la línea base de Windows, corridas sin cambios
+  en el código se rechazaban en falso.
 - Las 6 correcciones que pidió mypy: globales de los procesos hijos sin `None`,
   tipo de retorno de `_abrir_salida`, clave del `sorted` de `red_argentina`
   con `functools.partial`, tupla de dos elementos explícita y `type: ignore`
@@ -43,6 +49,12 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
   (su contenido está en `docs/arquitectura.md` y `docs/mantenimiento.md`).
 - `calidad.py`: el reporte local estilo SonarQube lo reemplazan los
   controles del CI.
+- El informe y las mediciones del segundo parcial (`INFORME-parcial-2.md`,
+  `resultados/`): lo que cambió desde entonces está en `docs/evolucion.md`.
+  `resultados/` ahora solo lo generan los scripts de medición y no se
+  versiona.
+- Las marcas `[EXPO N]` de la exposición del segundo parcial y los
+  comentarios `# pylint: disable` (Pylint ya no es parte de los controles).
 
 ## [2.0.0] — Segundo parcial
 

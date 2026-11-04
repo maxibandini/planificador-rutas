@@ -32,7 +32,7 @@ del parcial 3 sobre una copia del código del parcial 2 (mismo
 | Ruff | **Rechazado**: `UP047` (sintaxis de tipos genéricos vieja para Python ≥ 3.12) | Aprobado |
 | mypy | **Rechazado**: 6 errores | Aprobado |
 | Lizard, Bandit | Aprobado | Aprobado |
-| pytest + cobertura | Aprobado: las 118 pruebas del parcial 3 (116 + 2 de la documentación), 94,85 % | Aprobado: 118 pruebas + 3 de `controles.py`, 94,85 % |
+| pytest + cobertura | Aprobado: las 118 pruebas del parcial 3 (116 + 2 de la documentación), 94,85 % | Aprobado: 118 pruebas + 4 de `controles.py`, 94,85 % |
 | pip-audit | **Rechazado**: `requirement flask is not pinned to an exact version: flask>=3.0` | Aprobado: 97 dependencias, 0 vulnerabilidades |
 | Benchmark | +0 % a +4 % contra la línea base | −1 % a +5 % |
 | Memoria y complejidad | Aprobado | Aprobado |
@@ -66,6 +66,6 @@ futuro podía convertir en un error real.
 ## Qué se mantuvo
 
 Los algoritmos, la caché, la API, la telemetría y las 116 pruebas del
-parcial 2 están igual. El parcial 3 agregó 5 pruebas (los 2 ejemplos de esta
-documentación y 3 de `controles.py`) y 10 controles de rendimiento en `benchmarks/` (5 benchmarks,
+parcial 2 están igual. El parcial 3 agregó 6 pruebas (los 2 ejemplos de esta
+documentación y 4 de `controles.py`) y 10 controles de rendimiento en `benchmarks/` (5 benchmarks,
 2 de memoria y 3 de complejidad).

@@ -32,7 +32,7 @@ def test_formato_memoria():
     assert formato_memoria(0) == "0.0 MB"
 
 
-# [EXPO 9] Funcional: corre main.py como lo haria un usuario.
+# Funcional: corre main.py como lo haria un usuario.
 def test_main_de_punta_a_punta():
     # Prueba funcional: corre el script como lo haria un usuario.
     salida = subprocess.run(

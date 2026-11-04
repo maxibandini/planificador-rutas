@@ -63,7 +63,7 @@ Las herramientas se configuran en archivos versionados: `pyproject.toml`
 | `python servidor.py [--telemetria]` | API web en <http://127.0.0.1:8000> |
 | `python banco.py [--rapido]` | Tabla comparativa de algoritmos, caché y concurrencia |
 | `python banco_es.py [--rapido]` | Archivos grandes: lectura, escritura, tubería, paralelo, SQLite |
-| `pytest` | Las 121 pruebas (incluye los ejemplos de esta documentación) |
+| `pytest` | Las 122 pruebas (incluye los ejemplos de esta documentación) |
 | `python controles.py` | **Todos los controles del CI** (ver [Mantenimiento](mantenimiento.md#controles-locales)) |
 | `mkdocs serve` | Esta documentación en <http://127.0.0.1:8000> con recarga automática |
 

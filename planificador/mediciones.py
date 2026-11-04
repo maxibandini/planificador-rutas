@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 
-# [EXPO 1] Antes estaba copiada en banco.py y concurrencia.py.
+# Antes estaba copiada en banco.py y concurrencia.py.
 def cronometrar(
     funcion: Callable[..., Any], *argumentos: Any
 ) -> tuple[Any, float]:
@@ -83,7 +83,7 @@ def con_memoria(
     """
     # Import perezoso: PyPy no implementa tracemalloc, y asi el resto del
     # paquete se puede importar y medir tambien con PyPy.
-    import tracemalloc  # pylint: disable=import-outside-toplevel
+    import tracemalloc
 
     tracemalloc.start()
     try:

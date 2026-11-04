@@ -44,7 +44,7 @@ def leer_argumentos(red: Red, argumentos: list[str]) -> tuple[str, str]:
     return origen, destino
 
 
-# [EXPO 1] Devuelve los resultados para no volver a calcular A*.
+# Devuelve los resultados para no volver a calcular A*.
 def comparar_algoritmos(
     red: Red, origen: str, destino: str
 ) -> dict[str, Resultado]:
@@ -127,7 +127,7 @@ def demostrar_invalidacion(
     memoizado = crear_memoizado(red)
     memoizado(origen, destino)  # queda guardada en lru_cache
 
-    # [EXPO 9] Bug del P1 que encontraron los tests: usaba siempre
+    # Bug del P1 que encontraron los tests: usaba siempre
     # ruta[2] y ruta[3] y fallaba con rutas de menos de 4 ciudades.
     indice = min(2, len(optima.ruta) - 2)
     a, b = optima.ruta[indice], optima.ruta[indice + 1]
@@ -170,7 +170,7 @@ def mostrar_siguientes_pasos() -> None:
     print()
 
 
-# [EXPO 8] Refactor: el main() de 76 sentencias quedo en 4 funciones.
+# Refactor: el main() de 76 sentencias quedo en 4 funciones.
 def main() -> None:
     """Punto de entrada."""
     red = red_argentina()

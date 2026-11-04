@@ -49,7 +49,7 @@ RESULTADOS = Path(__file__).parent / "resultados"
 # -------------------------------------------------------------- cProfile
 
 
-# [EXPO 2] cProfile -> archivo .prof que se abre con SnakeViz.
+# cProfile -> archivo .prof que se abre con SnakeViz.
 def perfilar(
     funcion: Callable[[], object], destino: Path | None = None
 ) -> tuple[pstats.Stats, float]:
@@ -96,7 +96,7 @@ def resolver_todas(
 # ------------------------------------------------- herramientas externas
 
 
-# [EXPO 2] line_profiler: que linea exacta tiene la culpa.
+# line_profiler: que linea exacta tiene la culpa.
 def por_linea(algoritmo: Callable, red: Red, consultas: list) -> str | None:
     """line_profiler sin decorador ni kernprof.
 
@@ -104,7 +104,6 @@ def por_linea(algoritmo: Callable, red: Red, consultas: list) -> str | None:
         El reporte, o ``None`` si line_profiler no esta instalado.
     """
     try:  # dependencia opcional: el script corre aunque no este
-        # pylint: disable-next=import-outside-toplevel
         from line_profiler import LineProfiler
     except ImportError:
         return None
@@ -123,7 +122,6 @@ def memoria_mib(funcion: Callable, *argumentos) -> float | None:
         Pico menos memoria inicial, o ``None`` si no esta instalado.
     """
     try:  # dependencia opcional
-        # pylint: disable-next=import-outside-toplevel
         from memory_profiler import memory_usage
     except ImportError:
         return None
@@ -134,7 +132,7 @@ def memoria_mib(funcion: Callable, *argumentos) -> float | None:
 # ------------------------------------------------------ carga de trabajo
 
 
-# [EXPO 2] Carga para py-spy (flame graph) y Scalene (memoria).
+# Carga para py-spy (flame graph) y Scalene (memoria).
 def carga_de_trabajo() -> None:
     """Carga representativa para perfilar con py-spy o Scalene.
 

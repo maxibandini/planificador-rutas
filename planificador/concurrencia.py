@@ -31,12 +31,11 @@ CARGAS = (32, 128, 512, 2048)
 # Cada proceso hijo guarda aca su copia del mapa, enviada una sola vez por
 # el initializer en lugar de serializarla con cada consulta.
 # Sin valor inicial: lo asigna _iniciar_trabajador al arrancar cada proceso.
-_red_del_trabajador: Red  # pylint: disable=invalid-name
+_red_del_trabajador: Red
 
 
 def _iniciar_trabajador(red: Red) -> None:
     """Initializer del pool: guarda el mapa en la memoria del proceso."""
-    # pylint: disable-next=global-statement
     global _red_del_trabajador
     _red_del_trabajador = red
 
@@ -56,7 +55,7 @@ def _costo_en_proceso(consulta: Consulta) -> float:
     return _ruta_en_proceso(consulta).costo
 
 
-# [EXPO 1] Un solo lugar para crear el pool (antes estaba repetido).
+# Un solo lugar para crear el pool (antes estaba repetido).
 def crear_pool(
     red: Red,
     trabajadores: int = NUCLEOS,

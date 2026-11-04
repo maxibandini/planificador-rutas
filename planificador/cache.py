@@ -40,7 +40,7 @@ def clave_de_tramo(a: Nodo, b: Nodo) -> Tramo:
     return (a, b) if str(a) <= str(b) else (b, a)
 
 
-# [EXPO 8] Refactor "Large Class": los contadores pasan a un dataclass.
+# Refactor "Large Class": los contadores pasan a un dataclass.
 @dataclass
 class Contadores:
     """Contadores de actividad de la cache.
@@ -174,7 +174,7 @@ class CacheDeRutas:
                 if not usuarias:
                     del self._por_tramo[tramo]
 
-    # [EXPO P1] Cache inteligente: invalida solo las rutas de ese tramo.
+    # Cache inteligente: invalida solo las rutas de ese tramo.
     def cortar_tramo(self, a: Nodo, b: Nodo) -> int:
         """Corta un tramo de la red e invalida solo las rutas que lo usaban.
 

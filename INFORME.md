@@ -4,8 +4,8 @@
 Máximo Bandini y Lucas Caminos
 
 Este informe recorre la consigna punto por punto. Cada sección empieza con
-lo que dice la cátedra sobre el tema (con el número de diapositiva) y cómo lo
-aplicamos. El detalle técnico está en la documentación (`docs/`, se ve con
+lo que dice la cátedra sobre el tema (el número de diapositiva de la materia
+o el punto de la consigna) y cómo lo aplicamos. El detalle técnico está en la documentación (`docs/`, se ve con
 `mkdocs serve`). Todo se reproduce con `python controles.py`.
 
 **Equipo de medición:** AMD Ryzen 7 7800X3D, Windows 11, Python 3.14.6, y el
@@ -29,7 +29,7 @@ runner `ubuntu-latest` de GitHub Actions con Python 3.14.
 
 ## 1. Documentación externa
 
-> **De la cátedra · diap. 340 y 349.** La documentación externa (README,
+> **De la cátedra · diap. 339 y 341.** La documentación externa (README,
 > guías, documentación técnica) da la visión general del proyecto: cómo está
 > estructurado, qué decisiones de diseño se tomaron y cómo usar o modificar
 > las optimizaciones. Hay que documentar el *qué* y el *por qué*.
@@ -55,7 +55,7 @@ integrante). El CI publica el sitio en GitHub Pages cuando un cambio llega a
 | Instalación y ejecución | `instalacion.md` |
 | Diseño técnico | `diseno.md`: estructuras de datos, complejidades y decisiones con su medición |
 | API y contratos | `api.md` (salidas reales de la API) y `referencia.md` (desde los docstrings) |
-| Pruebas | `pruebas.md`: estrategia, 121 casos por tipo, cobertura por módulo |
+| Pruebas | `pruebas.md`: estrategia, 122 casos por tipo, cobertura por módulo |
 | Rendimiento | `rendimiento.md`: benchmark, profiling, complejidad teórica y medida, memoria |
 | Seguridad | `seguridad.md`: riesgos, política de bloqueo, falsos positivos |
 | Mantenimiento | `mantenimiento.md`: cómo contribuir y una tabla *fallo → cómo reproducirlo → cómo se resuelve* |
@@ -68,17 +68,15 @@ da por aprobada: la informa como *sin verificar*.
 
 ## 2. El pipeline de integración continua
 
-> **De la cátedra · diap. 350 y 351.** La integración continua incorpora
-> frecuentemente los cambios a un repositorio compartido y ejecuta
-> automáticamente controles para **detectar errores cuanto antes**. La
-> validación de eficiencia comprueba que el software use bien los recursos y
-> cumpla los requisitos de rendimiento. CI puede detectar problemas con
-> tests, benchmarks, profiling, análisis estático, cobertura, complejidad y
-> consumo de memoria.
+> **De la cátedra · consigna, puntos 2 y 3.** El pipeline se ejecuta
+> automáticamente ante cada push y cada pull request hacia la rama principal,
+> y el código **no se integra si incumple las condiciones mínimas de
+> calidad**. Los controles se organizan en etapas: primero los más rápidos,
+> y las mediciones más costosas al final.
 >
-> **Cómo y por qué lo aplicamos.** Usamos exactamente esa lista como etapas
-> del pipeline. "Cuanto antes" lo tomamos literal: primero lo que tarda
-> segundos, y lo costoso solo si lo anterior pasó.
+> **Cómo y por qué lo aplicamos.** Seguimos esa propuesta de etapas casi
+> literal: primero lo que tarda segundos, y lo costoso solo si lo anterior
+> pasó.
 
 ```text
 push / PR ──► calidad ──┬──► pruebas ──► rendimiento ──┐
@@ -110,7 +108,7 @@ push / PR ──► calidad ──┬──► pruebas ──► rendimiento ─
 | Secretos | Gitleaks | SARIF | Cualquier secreto |
 | Dependencias | pip-audit + Dependabot | JSON | Vulnerabilidad conocida |
 | Documentación | MkDocs `--strict` | Sitio | No construye o hay un enlace roto |
-| Benchmark | pytest-benchmark | JSON | > 30 % más lento que la línea base |
+| Benchmark | pytest-benchmark | JSON | > 50 % más lento que la línea base |
 | Memoria | tracemalloc | JSON | Pico > 20 % sobre la línea base |
 | Profiling | cProfile | `.prof` y texto | No bloquea: sirve para decidir qué optimizar |
 
@@ -130,8 +128,14 @@ Por eso **no todos los controles usan el mismo criterio**:
   distintas, así que un umbral en milisegundos no sirve. Cada operación se
   divide por una referencia en Python puro medida en la misma corrida, se
   toma el mínimo de varias rondas (el ruido solo suma tiempo) y ese cociente
-  se compara con la línea base. Entre corridas la variación fue de ±4 %; la
-  tolerancia es 30 %.
+  se compara con la línea base. En la misma máquina la variación entre
+  corridas fue de ±4 %, pero los runners de GitHub son máquinas
+  compartidas y varían mucho más (ver sección 8). Por eso la línea base es
+  la **mediana de 7 corridas en el runner** y la tolerancia es 50 %: las 11
+  corridas sin cambios en el código quedaron entre −23 % y +19 %, y el
+  defecto plantado se rechaza igual (al menos +60 %). Los cambios de
+  algoritmo más sutiles los detecta la complejidad medida, que no depende
+  de la máquina.
 - **Memoria:** tracemalloc cuenta objetos Python, no memoria del sistema
   operativo, y da casi el mismo número en Windows y en Linux. Tolerancia 20 %.
 
@@ -141,15 +145,18 @@ costosas.
 
 ## 4. Seguridad
 
-> **De la cátedra · diap. 355.** Herramientas para detectar
-> vulnerabilidades: Bandit (patrones inseguros en código Python), Semgrep,
-> OSV-Scanner (dependencias), **Gitleaks** (secretos y credenciales expuestas)
-> y Trivy.
+> **De la cátedra · consigna, punto 2.2.** Bandit analiza patrones inseguros
+> en el código Python y pip-audit comprueba las dependencias frente a
+> vulnerabilidades conocidas: conviene combinar controles complementarios.
+> Hay que analizar el código, analizar las dependencias y **detectar
+> secretos**, con una política de bloqueo por severidad.
 >
-> **Cómo y por qué lo aplicamos.** Elegimos una herramienta por cada cosa
-> que pide la consigna: Bandit para el código, pip-audit para las
-> dependencias y Gitleaks para los secretos. Agregar Semgrep u OSV-Scanner
-> repetiría lo mismo con otra herramienta.
+> **Cómo y por qué lo aplicamos.** Una herramienta por cada cosa que pide la
+> consigna: Bandit para el código y pip-audit para las dependencias, las dos
+> propuestas por la cátedra. Para los secretos la consigna no propone
+> herramienta, y ni Bandit ni pip-audit los buscan: usamos Gitleaks, que hace
+> solo eso. Agregar Semgrep u OSV-Scanner repetiría lo mismo con otra
+> herramienta.
 
 | Hallazgo | Acción |
 |---|---|
@@ -270,7 +277,7 @@ coincide con la teoría también en el error.
 | Rendimiento | `banco.py`, a mano | Informe con mediciones | Benchmark contra línea base en cada cambio |
 | Documentación | Docstrings y la presentación | Sphinx, generado a mano | MkDocs, publicado por el CI; ejemplos ejecutables |
 | Dependencias | — | 21 con `>=` | 97 con versión exacta |
-| Pruebas | — | 116 | 121 |
+| Pruebas | — | 116 | 122 |
 
 **El pipeline del parcial 3 corrido sobre el código del parcial 2** (mismas
 pruebas, misma configuración, misma línea base):
@@ -301,17 +308,32 @@ documentación publicada: <https://maxibandini.github.io/planificador-rutas/>.
 | Primera | **Rechazada.** mypy en Linux marcó un `type: ignore` sin usar en `telemetria.py`: esa línea solo corre en Windows, y en Linux mypy la ve inalcanzable. En nuestras máquinas (Windows) pasaba. Lo reprodujimos con `mypy --platform linux` y lo corregimos |
 | Segunda | **Aprobada**: las 7 etapas en 2 min 54 s, y la documentación publicada |
 | Pull request de Dependabot | Propuso `mando` 0.8.2, incompatible con `radon` 6.0.1: **la instalación falla y el CI la rechaza**. Lo cerramos y le indicamos a Dependabot que no vuelva a proponerla |
+| Pull request #2 | **Aprobada**, en un runner con procesador AMD en lugar de Intel: el benchmark dio de +16 a +27 %, dentro de la tolerancia pero más cerca del límite |
+| Pull request #3 | **Rechazada por una regresión falsa**: el acierto de caché dio +40 % sin que cambiara su código. pytest-benchmark repitió la operación 2 veces por ronda (en las corridas anteriores, 40), y con 0,3 µs el reloj pesa más que la operación. En local se reproduce: +33 % con 1 repetición por ronda. Lo corregimos haciendo que cada ronda dure al menos 0,1 ms (unas 1.000 repeticiones) |
+| Pull request #3, siete corridas más | Para ver el ruido de los runners repetimos la corrida sin cambiar el código. Contra la línea base de Windows dio de −5 a +44 %, y **una se rechazó** (todas las operaciones de +22 a +31 %, en el mismo modelo de procesador que otra que dio −5 %). Cambiamos la línea base por la mediana de esas 7 corridas en el runner y la tolerancia a 50 % |
 
-**La línea base medida en Windows funcionó en Linux.** El runner es más
-lento: A* tarda 18,3 ms contra 12,7 ms en nuestra PC (+44 %). Con un umbral
-en milisegundos el CI hubiera marcado una regresión falsa. En tiempo
-relativo la diferencia quedó en +9 a +12 %, dentro de la tolerancia. Los
+**La línea base medida en Windows no alcanzó.** El runner es más lento: A*
+tarda 18,3 ms contra 12,7 ms en nuestra PC (+44 %). Con un umbral en
+milisegundos el CI hubiera marcado una regresión falsa, y el tiempo
+relativo lo resolvió en la primera corrida (+9 a +12 %). Pero en 11
+corridas sin cambios en el código varió de −5 % a +44 %: los runners son
+máquinas compartidas, y en algunas corridas el código del proyecto (que
+recorre estructuras grandes en memoria) se frena más que la referencia
+(cuentas simples). Ahora la línea base es la mediana de 7 corridas en el
+runner (`python controles.py linea-base` con sus `benchmark.json`) y la
+tolerancia es 50 %. Contra esa línea base las 11 corridas quedan entre −23 %
+y +19 %, y el defecto plantado se sigue rechazando aun en el runner más
+rápido (+60 %). Los
 controles que no dependen de la máquina dieron lo mismo que en Windows:
 exponentes 1,96 y 1,15 (contra 2,00 y 1,14) y memoria 1.119,7 KiB (contra
 1.121,7).
 
-Los dos rechazos son justamente para lo que sirve un CI: ninguno se veía en
-la máquina donde escribimos el código.
+Los dos primeros rechazos son justamente para lo que sirve un CI: ninguno se
+veía en la máquina donde escribimos el código. Los del pull request #3
+muestran lo contrario: un control de tiempos mal calibrado, o con una línea
+base medida en otra máquina, rechaza código correcto. Por eso el benchmark
+necesita repetición y una línea base medida varias veces en el mismo
+entorno donde corre.
 
 ## 9. Conclusiones
 
@@ -337,4 +359,5 @@ python controles.py rendimiento     # benchmark, memoria, complejidad
 mkdocs serve                        # la documentación
 ```
 
-El informe del segundo parcial está en `INFORME-parcial-2.md`.
+Qué cambió respecto del parcial 2, archivo por archivo: `docs/evolucion.md`
+y `CHANGELOG.md`.

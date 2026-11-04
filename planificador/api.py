@@ -36,7 +36,7 @@ class ConsultaInvalidaError(ValueError):
     """Error en los datos de una peticion. Se responde con HTTP 400."""
 
 
-# [EXPO 3] Span propio para A*: solo aparece en los fallos de cache.
+# Span propio para A*: solo aparece en los fallos de cache.
 def _a_estrella_trazada(red: Red, origen: Nodo, destino: Nodo) -> Resultado:
     """A* dentro de un span, para ver en el APM cuanto tarda cada calculo.
 
@@ -49,7 +49,7 @@ def _a_estrella_trazada(red: Red, origen: Nodo, destino: Nodo) -> Resultado:
         return resultado
 
 
-# [EXPO 10] Mapa y cache compartidos por los hilos: protegidos con lock.
+# Mapa y cache compartidos por los hilos: protegidos con lock.
 class ServicioDeRutas:
     """Capa de servicio: mapa y cache compartidos por todas las peticiones.
 
@@ -206,7 +206,7 @@ def _parametro(nombre: str) -> str:
     return valor
 
 
-# [EXPO 10] FLASK: application factory con todas las rutas de la API.
+# FLASK: application factory con todas las rutas de la API.
 def crear_app(red: Red | None = None, telemetria: bool = False) -> Flask:
     """Crea la aplicacion Flask (patron *application factory*).
 
@@ -258,7 +258,7 @@ def crear_app(red: Red | None = None, telemetria: bool = False) -> Flask:
     def ciudades():
         return jsonify(ciudades=servicio.ciudades())
 
-    # [EXPO 10] Endpoint principal: GET /api/ruta?origen=...&destino=...
+    # Endpoint principal: GET /api/ruta?origen=...&destino=...
     @app.get("/api/ruta")
     def ruta():
         origen, destino = _parametro("origen"), _parametro("destino")

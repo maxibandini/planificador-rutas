@@ -14,7 +14,7 @@ def test_ciudades(cliente):
     assert len(respuesta.get_json()["ciudades"]) == 24
 
 
-# [EXPO 9] Integracion: la API completa con el cliente de Flask.
+# Integracion: la API completa con el cliente de Flask.
 def test_ruta_y_segunda_consulta_desde_cache(cliente):
     url = "/api/ruta?origen=Ushuaia&destino=Salta"
     primera = cliente.get(url).get_json()

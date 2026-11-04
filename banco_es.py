@@ -415,7 +415,7 @@ def concluir_paralelo(filas: list[Fila]) -> None:
 # ------------------------------------------------------------------ main
 
 
-# [EXPO 4] Banco de E/S: lectura, escritura, tuberia, paralelo, SQLite.
+# Banco de E/S: lectura, escritura, tuberia, paralelo, SQLite.
 def main() -> None:
     """Corre las cinco secciones y guarda las mediciones en JSON."""
     rapido = "--rapido" in sys.argv

@@ -12,7 +12,7 @@ from collections.abc import Sequence
 ANCHO = 76
 
 
-# [EXPO 1] Antes estaba copiada en main.py, banco.py y perfilado.py.
+# Antes estaba copiada en main.py, banco.py y perfilado.py.
 def titulo(texto: str) -> None:
     """Imprime un titulo de seccion entre dos lineas.
 

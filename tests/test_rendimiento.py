@@ -29,7 +29,7 @@ def _mejor_tiempo(funcion, repeticiones=3):
     return min(timeit.repeat(funcion, number=1, repeat=repeticiones))
 
 
-# [EXPO 9] Pruebas de rendimiento con timeit.
+# Pruebas de rendimiento con timeit.
 def test_heap_mas_rapido_que_lista(red_mediana):
     consultas = generar_consultas(red_mediana, 5, semilla=8)
 
