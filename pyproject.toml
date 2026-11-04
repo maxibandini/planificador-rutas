@@ -1,0 +1,82 @@
+[project]
+name = "planificador-rutas"
+version = "3.0.0"
+description = "Planificador inteligente de rutas - Programacion Eficiente, tercer parcial"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "Máximo Bandini" }, { name = "Lucas Caminos" }]
+# Las versiones exactas (y las de las dependencias indirectas) estan fijadas
+# en requirements.txt y requirements-dev.txt.
+dependencies = [
+    "flask",
+    "waitress",
+    "opentelemetry-sdk",
+    "opentelemetry-exporter-otlp-proto-http",
+    "opentelemetry-instrumentation-flask",
+]
+
+[tool.setuptools]
+packages = ["planificador"]
+
+# ------------------------------------------------------------------ Ruff
+# Linter y formateador. Reemplaza a pycodestyle + pyflakes + isort +
+# pydocstyle con una sola herramienta.
+# [EXPO 5] PEP 8: Ruff con lineas de 79 y docstrings estilo Google.
+[tool.ruff]
+line-length = 79            # PEP 8: maximo 79 caracteres por linea
+target-version = "py312"
+extend-exclude = ["site", "reportes"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle: estilo PEP 8
+    "F",        # pyflakes: imports y variables sin usar, nombres indefinidos
+    "N",        # pep8-naming: snake_case, CamelCase
+    "D",        # pydocstyle: docstrings
+    "I",        # isort: orden de imports
+    "B",        # bugbear: practicas propensas a errores
+    "SIM",      # simplificaciones
+    "UP",       # sintaxis moderna de Python
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D"]           # los nombres de los tests ya documentan
+"benchmarks/*" = ["D"]
+
+# ---------------------------------------------------------------- pytest
+# [EXPO 9] pytest corre los tests y los doctests de los docstrings.
+[tool.pytest.ini_options]
+# "docs": los ejemplos >>> de la documentacion tambien se ejecutan.
+testpaths = ["tests", "planificador", "docs"]
+addopts = "--doctest-modules --doctest-glob=*.md -ra"
+markers = [
+    "rendimiento: pruebas de rendimiento con timeit (mas lentas)",
+    "lento: pruebas que levantan procesos",
+]
+
+# -------------------------------------------------------------- coverage
+[tool.coverage.run]
+source = ["planificador"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 90             # menos de 90 % de cobertura rechaza el cambio
+show_missing = true
+skip_covered = false
+
+# ------------------------------------------------------------------ mypy
+# Tipado del paquete. Los scripts de la raiz (main.py, banco.py...) son la
+# capa de presentacion y no se controlan.
+[tool.mypy]
+files = ["planificador"]
+python_version = "3.12"
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+[[tool.mypy.overrides]]
+module = ["waitress.*", "opentelemetry.*"]
+ignore_missing_imports = true

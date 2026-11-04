@@ -1,0 +1,15 @@
+# Entornos y caches de Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.benchmarks/
+.coverage
+
+# Generados (se regeneran con controles.py / mkdocs / los scripts)
+reportes/
+site/
+scalene-profile.json
+resultados/*_rapido.json

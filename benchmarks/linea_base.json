@@ -1,0 +1,12 @@
+{
+  "tiempos": {
+    "test_a_estrella": 1.336,
+    "test_dijkstra_heap": 3.436,
+    "test_cache_acierto": 2.038e-05,
+    "test_procesar_archivo_por_lotes": 108.3
+  },
+  "memoria_kib": {
+    "a_estrella_10k_nodos": 1121.7,
+    "archivo_5k_consultas": 10976.3
+  }
+}

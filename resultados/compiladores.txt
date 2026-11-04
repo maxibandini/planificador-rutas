@@ -1,0 +1,14 @@
+Midiendo con CPython...
+Midiendo con PyPy...
+
+  CPython 3.12.10  contra  PyPy (Python 3.12.14)
+
+  carga                                       CPython  PyPy 1ra PyPy mejor  mejora
+  --------------------------------------------------------------------------------
+  A*, 300 consultas, 12.100 nodos               0.36s     0.60s      0.55s    0.7x
+  Dijkstra lista, 3 consultas, 2.500 nodos      0.27s     0.06s      0.05s    5.1x
+  Tuberia de archivos, 100.000 consultas        0.90s     1.30s      1.30s    0.7x
+  --------------------------------------------------------------------------------
+  Arranque del interprete: CPython 37 ms, PyPy 30 ms.
+
+  Guardado en resultados/compiladores.json

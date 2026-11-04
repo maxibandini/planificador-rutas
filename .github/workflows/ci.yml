@@ -1,0 +1,187 @@
+# Integracion continua del planificador de rutas.
+#
+# Corre en cada push a main y en cada pull request hacia main. Las etapas
+# van de la mas rapida a la mas costosa:
+#
+#   calidad --+--> pruebas ------> rendimiento --+
+#             +--> seguridad ---------------------+--> resultado --> publicar-docs
+#             +--> documentacion -----------------+
+#
+# Cada job llama a "python controles.py <etapa>", el mismo comando que se
+# usa en la maquina local (ver docs/mantenimiento.md). El job "resultado" es
+# el check obligatorio de la regla de proteccion de main: si cualquier etapa
+# falla, el pull request no se puede integrar.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      linea_base:
+        description: "Regenerar la linea base de rendimiento en el runner"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Un push nuevo a un pull request cancela la corrida vieja; en main no se
+# cancela nada, para no cortar una publicacion de la documentacion.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  PYTHON_VERSION: "3.14"
+  GITLEAKS_VERSION: "8.30.1"
+  NO_MKDOCS_2_WARNING: "1" # aviso de fin de vida de Material (ver docs)
+
+jobs:
+  # 2 + 3. Preparacion del entorno y calidad estatica
+  calidad:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - name: Instalar dependencias fijadas
+        run: pip install -r requirements-dev.txt
+      - name: Instalar Gitleaks
+        run: |
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+      - name: Ruff, mypy, Lizard, Radon, Bandit y Gitleaks
+        run: python controles.py calidad
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reportes-calidad
+          path: reportes/
+
+  # 4. Pruebas y cobertura
+  pruebas:
+    needs: calidad
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: pytest + cobertura >= 90 %
+        run: python controles.py pruebas
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reportes-pruebas
+          path: reportes/
+
+  # 5a. Seguridad de dependencias
+  seguridad:
+    needs: calidad
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: pip-audit
+        run: python controles.py seguridad
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reportes-seguridad
+          path: reportes/
+
+  # 5b. Documentacion: el sitio se construye y los enlaces son validos
+  documentacion:
+    needs: calidad
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: MkDocs --strict (el sitio se construye y los enlaces son validos)
+        run: python controles.py documentacion
+
+  # 6. Rendimiento y memoria (lo mas costoso, al final)
+  rendimiento:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Regenerar linea base (solo a pedido)
+        if: inputs.linea_base
+        run: python controles.py linea-base
+      - name: Benchmark, regresion, memoria, complejidad y profiling
+        run: python controles.py rendimiento
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reportes-rendimiento
+          path: |
+            reportes/
+            benchmarks/linea_base.json
+
+  # 7. Resultado final: un solo check que resume todo el pipeline
+  resultado:
+    needs: [calidad, pruebas, seguridad, documentacion, rendimiento]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resumen
+        env:
+          RESULTADOS: ${{ toJSON(needs) }}
+        run: |
+          echo "## Resultado del pipeline" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Etapa | Resultado |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "$RESULTADOS" | jq -r 'to_entries[] | "| \(.key) | \(.value.result) |"' >> "$GITHUB_STEP_SUMMARY"
+          if echo "$RESULTADOS" | jq -e 'any(.[]; .result != "success")' > /dev/null; then
+            echo "**RECHAZADO**: hay etapas que no pasaron." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "**APROBADO**" >> "$GITHUB_STEP_SUMMARY"
+
+  # Publica la documentacion en GitHub Pages solo si todo paso en main
+  publicar-docs:
+    needs: resultado
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # mkdocs gh-deploy escribe la rama gh-pages
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Identidad de git para el commit en gh-pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - run: mkdocs gh-deploy --force

@@ -1,0 +1,40 @@
+{
+  "cpython": {
+    "interprete": "CPython",
+    "version": "3.12.10",
+    "cargas": {
+      "A*, 300 consultas, 12.100 nodos": {
+        "primera": 0.3609149999974761,
+        "mejor": 0.3609149999974761
+      },
+      "Dijkstra lista, 3 consultas, 2.500 nodos": {
+        "primera": 0.2748741000032169,
+        "mejor": 0.26915770000050543
+      },
+      "Tuberia de archivos, 100.000 consultas": {
+        "primera": 0.9009158000044408,
+        "mejor": 0.9009158000044408
+      }
+    },
+    "arranque": 0.036547600000631064
+  },
+  "pypy": {
+    "interprete": "PyPy",
+    "version": "3.12.14",
+    "cargas": {
+      "A*, 300 consultas, 12.100 nodos": {
+        "primera": 0.6019889999952284,
+        "mejor": 0.5479477999979281
+      },
+      "Dijkstra lista, 3 consultas, 2.500 nodos": {
+        "primera": 0.06062699999893084,
+        "mejor": 0.05289890000130981
+      },
+      "Tuberia de archivos, 100.000 consultas": {
+        "primera": 1.3043106999975862,
+        "mejor": 1.3043106999975862
+      }
+    },
+    "arranque": 0.02957590000005439
+  }
+}

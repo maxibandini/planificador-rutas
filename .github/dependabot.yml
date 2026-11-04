@@ -1,0 +1,19 @@
+# Dependabot revisa una vez por semana si hay versiones nuevas de las
+# dependencias fijadas y de las acciones del pipeline, y abre un pull request
+# por cada una. El CI corre sobre ese pull request: si la actualizacion rompe
+# algo, no se integra. Las alertas de seguridad se activan en
+# Settings > Code security > Dependabot alerts.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      opentelemetry:
+        patterns: ["opentelemetry-*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

@@ -1,0 +1,10 @@
+# Configuracion de Gitleaks: reglas por defecto mas las excepciones del
+# proyecto. Cada excepcion tiene que estar justificada en docs/seguridad.md.
+title = "planificador-rutas"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Carpetas generadas por el pipeline y la documentacion construida"
+paths = ['''^reportes/''', '''^site/''']

@@ -1,0 +1,11 @@
+Peticiones: 400  (8 hilos)
+Corte de tramo a mitad de camino: 22 rutas
+  invalidadas. Aciertos de cache: 323
+
+  latencia (ms)              p50     p95     p99
+  todas                     5.74   27.23   34.12
+  desde la cache            5.71   26.01   33.38
+  calculadas (A*)           5.91   28.80   37.14
+
+Trazas en Jaeger: http://localhost:16686 (servicio
+planificador-rutas). La latencia incluye HTTP y el lock.

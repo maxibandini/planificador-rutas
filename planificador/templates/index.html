@@ -1,0 +1,138 @@
+<!doctype html>
+<!-- [EXPO 10] Plantilla Jinja: formulario y mapa SVG con la ruta. -->
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planificador de rutas</title>
+  <style>
+    :root {
+      --fondo: #f7f7f5; --texto: #1d1d1b; --suave: #6b6b66;
+      --borde: #d9d9d4; --tarjeta: #ffffff; --acento: #c2410c;
+      --tramo: #c9c9c3; --ciudad: #44443f;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fondo: #171716; --texto: #ececea; --suave: #a3a39e;
+        --borde: #3a3a37; --tarjeta: #222220; --acento: #fb923c;
+        --tramo: #4a4a46; --ciudad: #d6d6d2;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px 16px; background: var(--fondo);
+      color: var(--texto); font: 15px/1.5 system-ui, sans-serif;
+    }
+    main { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    p.sub { margin: 0 0 20px; color: var(--suave); }
+    form {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: end;
+      margin-bottom: 20px;
+    }
+    label { display: flex; flex-direction: column; gap: 4px;
+            font-size: .85rem; color: var(--suave); }
+    select, button {
+      font: inherit; padding: 6px 10px; border-radius: 6px;
+      border: 1px solid var(--borde); background: var(--tarjeta);
+      color: var(--texto);
+    }
+    button { background: var(--acento); color: #fff; border: 0;
+             cursor: pointer; }
+    .grilla { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+    @media (max-width: 720px) { .grilla { grid-template-columns: 1fr; } }
+    .tarjeta { background: var(--tarjeta); border: 1px solid var(--borde);
+               border-radius: 10px; padding: 16px; }
+    .datos { display: grid; grid-template-columns: repeat(2, 1fr);
+             gap: 12px; margin-bottom: 16px; }
+    .dato span { display: block; font-size: .8rem; color: var(--suave); }
+    .dato strong { font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+    ol { margin: 0; padding-left: 20px; }
+    .error { color: var(--acento); font-weight: 600; }
+    svg { width: 100%; height: auto; display: block; }
+    footer { margin-top: 20px; font-size: .8rem; color: var(--suave); }
+    code { font-size: .85em; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Planificador inteligente de rutas</h1>
+  <p class="sub">Programación Eficiente · Segundo parcial · Flask</p>
+
+  <form method="get" action="/">
+    <label>Origen
+      <select name="origen">
+        {% for ciudad in ciudades %}
+        <option {% if ciudad == origen %}selected{% endif %}>{{ ciudad }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Destino
+      <select name="destino">
+        {% for ciudad in ciudades %}
+        <option {% if ciudad == destino %}selected{% endif %}>{{ ciudad }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Algoritmo
+      <select name="algoritmo">
+        {% for nombre in algoritmos %}
+        <option {% if nombre == algoritmo %}selected{% endif %}>{{ nombre }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Calcular</button>
+  </form>
+
+  <div class="grilla">
+    <section class="tarjeta">
+      {% if error %}
+      <p class="error">{{ error }}</p>
+      {% elif resultado and resultado.ruta %}
+      <div class="datos">
+        <div class="dato"><span>Distancia (unidades del modelo)</span>
+          <strong>{{ "{:,.0f}".format(resultado.costo) }}</strong></div>
+        <div class="dato"><span>Ciudades en la ruta</span>
+          <strong>{{ resultado.nodos_en_ruta }}</strong></div>
+        <div class="dato"><span>Nodos explorados</span>
+          <strong>{{ resultado.explorados }}</strong></div>
+        <div class="dato"><span>Origen del resultado</span>
+          <strong>{{ "caché" if desde_cache else "calculado" }}</strong></div>
+      </div>
+      <ol>
+        {% for ciudad in resultado.ruta %}<li>{{ ciudad }}</li>{% endfor %}
+      </ol>
+      {% else %}
+      <p class="error">No hay ruta entre esas ciudades.</p>
+      {% endif %}
+    </section>
+
+    <section class="tarjeta" aria-label="Mapa">
+      <svg viewBox="0 0 {{ mapa.ancho }} {{ mapa.alto }}" role="img"
+           aria-label="Mapa de ciudades con la ruta resaltada">
+        {% for a, b in mapa.tramos %}
+        <line x1="{{ mapa.puntos[a][0] }}" y1="{{ mapa.puntos[a][1] }}"
+              x2="{{ mapa.puntos[b][0] }}" y2="{{ mapa.puntos[b][1] }}"
+              stroke="var(--tramo)" stroke-width="1.2"/>
+        {% endfor %}
+        {% if resultado and resultado.ruta %}
+        <polyline fill="none" stroke="var(--acento)" stroke-width="3.5"
+                  stroke-linejoin="round" stroke-linecap="round"
+                  points="{% for c in resultado.ruta %}{{ mapa.puntos[c][0] }},{{ mapa.puntos[c][1] }} {% endfor %}"/>
+        {% endif %}
+        {% for ciudad, punto in mapa.puntos.items() %}
+        <circle cx="{{ punto[0] }}" cy="{{ punto[1] }}" r="3.2"
+                fill="var(--ciudad)"><title>{{ ciudad }}</title></circle>
+        {% endfor %}
+      </svg>
+    </section>
+  </div>
+
+  <footer>
+    API JSON: <code>/api/ruta?origen=Ushuaia&amp;destino=Salta</code> ·
+    <code>/api/comparar</code> · <code>/api/cache</code> ·
+    Distancias de un modelo didáctico, no kilómetros viales.
+  </footer>
+</main>
+</body>
+</html>

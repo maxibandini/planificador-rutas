@@ -1,0 +1,133 @@
+{
+  "nucleos": 8,
+  "python": "3.12.10",
+  "lectura": [
+    {
+      "variante": "readlines(): todo en memoria",
+      "segundos": 0.28082480000011856,
+      "memoria": 235120496,
+      "proyectado": false
+    },
+    {
+      "variante": "Streaming linea a linea",
+      "segundos": 0.3769086999964202,
+      "memoria": 26593,
+      "proyectado": false
+    },
+    {
+      "variante": "Lotes de 10.000 lineas",
+      "segundos": 0.4537603999997373,
+      "memoria": 3329655,
+      "proyectado": false
+    }
+  ],
+  "escritura": [
+    {
+      "variante": "Abrir y cerrar por linea",
+      "segundos": 285.8201099996222,
+      "memoria": null,
+      "proyectado": true,
+      "muestra": 10000
+    },
+    {
+      "variante": "Una apertura, buffer 8 KiB",
+      "segundos": 0.11097239999799058,
+      "memoria": null,
+      "proyectado": false
+    },
+    {
+      "variante": "Una apertura, buffer 1 MiB",
+      "segundos": 0.0942261000018334,
+      "memoria": null,
+      "proyectado": false
+    },
+    {
+      "variante": "Lotes con writelines",
+      "segundos": 0.07876480000413721,
+      "memoria": null,
+      "proyectado": false
+    }
+  ],
+  "tuberias": {
+    "filas": [
+      {
+        "variante": "V0 Ingenua",
+        "segundos": 61.57368310000311,
+        "memoria": null,
+        "proyectado": false
+      },
+      {
+        "variante": "V1 Streaming + buffer",
+        "segundos": 2.9359493000010843,
+        "memoria": null,
+        "proyectado": false
+      },
+      {
+        "variante": "V2 Lotes + cache",
+        "segundos": 0.31794490000174847,
+        "memoria": null,
+        "proyectado": false
+      },
+      {
+        "variante": "V3 Lotes en paralelo",
+        "segundos": 0.25842439999541966,
+        "memoria": null,
+        "proyectado": false
+      }
+    ],
+    "iguales": true
+  },
+  "paralelo": {
+    "filas": [
+      {
+        "variante": "Lotes secuencial, este proceso",
+        "segundos": 9.618837699999858,
+        "memoria": null,
+        "proyectado": false
+      },
+      {
+        "variante": "Lotes en 1 proceso",
+        "segundos": 7.0485103000028175,
+        "memoria": null,
+        "proyectado": false
+      },
+      {
+        "variante": "Lotes en 2 procesos",
+        "segundos": 2.7143130999975256,
+        "memoria": null,
+        "proyectado": false
+      },
+      {
+        "variante": "Lotes en 4 procesos",
+        "segundos": 1.6056841999961762,
+        "memoria": null,
+        "proyectado": false
+      },
+      {
+        "variante": "Lotes en 8 procesos",
+        "segundos": 1.268743499997072,
+        "memoria": null,
+        "proyectado": false
+      }
+    ],
+    "iguales": true
+  },
+  "sqlite": {
+    "filas": [
+      {
+        "variante": "Un INSERT y un commit por fila",
+        "segundos": 1248.9847999997437,
+        "memoria": null,
+        "proyectado": true,
+        "muestra": 500
+      },
+      {
+        "variante": "executemany, commit por lote de 1.000",
+        "segundos": 0.6068920999969123,
+        "memoria": null,
+        "proyectado": false
+      }
+    ],
+    "correctas": true
+  }
+}

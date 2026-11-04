@@ -1,0 +1,78 @@
+# Documentacion externa del proyecto (MkDocs + Material for MkDocs).
+#
+#   mkdocs serve             # vista previa en http://127.0.0.1:8000
+#   mkdocs build --strict    # lo que corre el CI: falla ante cualquier aviso
+#
+# El CI la publica en GitHub Pages despues de cada push a main que pasa
+# todos los controles.
+site_name: Planificador inteligente de rutas
+site_description: Documentación funcional, técnica y operativa del planificador de rutas
+site_author: Máximo Bandini y Lucas Caminos
+repo_url: https://github.com/OWNER/planificador-rutas
+edit_uri: edit/main/docs/
+copyright: Programación Eficiente 2026 - Máximo Bandini y Lucas Caminos
+
+theme:
+  name: material
+  language: es
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.action.edit
+    - search.highlight
+  palette:
+    - scheme: default
+      toggle: { icon: material/weather-night, name: Modo oscuro }
+    - scheme: slate
+      toggle: { icon: material/weather-sunny, name: Modo claro }
+
+nav:
+  - Inicio: index.md
+  - Descripción funcional: funcional.md
+  - Arquitectura: arquitectura.md
+  - Instalación y ejecución: instalacion.md
+  - Diseño técnico: diseno.md
+  - API y contratos:
+      - API web (HTTP): api.md
+      - Referencia del código: referencia.md
+  - Pruebas: pruebas.md
+  - Rendimiento: rendimiento.md
+  - Seguridad: seguridad.md
+  - Integración continua: ci.md
+  - Mantenimiento: mantenimiento.md
+  - Evolución desde el parcial 2: evolucion.md
+
+# --strict convierte estos avisos en errores: un enlace roto o un ancla
+# inexistente hace fallar el CI.
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+plugins:
+  - search:
+      lang: es
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["."]
+          options:
+            docstring_style: google
+            show_source: false
+            members_order: source
+            heading_level: 2
