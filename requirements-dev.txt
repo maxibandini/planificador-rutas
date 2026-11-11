@@ -26,7 +26,7 @@ jschema-to-python==1.2.3
 jsonpickle==4.1.4
 librt==0.16.0
 license-expression==30.4.4
-lizard==1.25.0
+lizard==1.25.1
 mando==0.7.1
 Markdown==3.11.2
 markdown-it-py==4.2.0
